@@ -4,14 +4,13 @@ namespace SpyNet10.InteropServices;
 
 public class ComTypeLibrary
 {
-    private string _fileName;
-    private ITypeLib _typeLib;
-    private string _name = string.Empty;
-    private string _description = string.Empty;
-    private int _helpContext = 0;
-    private string _helpFile = string.Empty;
+    private readonly ITypeLib _typeLib;
+    private readonly string _name = string.Empty;
+    private readonly string _description = string.Empty;
+    private readonly int _helpContext;
+    private readonly string _helpFile = string.Empty;
     private TYPELIBATTR _typeLibAttr;
-    private List<ComTypeInfo> _typeInfos = null;
+    private List<ComTypeInfo> _typeInfos;
 
     public ComTypeLibrary(ITypeLib typeLib)
     {
@@ -19,17 +18,17 @@ public class ComTypeLibrary
         _typeLib.GetDocumentation(-1, out _name, out _description, out _helpContext, out _helpFile);
         _typeLibAttr = _typeLib.GetLibAttr();
 
-        _fileName = NativeMethods.QueryPathOfRegTypeLib(_typeLibAttr.guid, _typeLibAttr.wMajorVerNum, _typeLibAttr.wMinorVerNum, _typeLibAttr.lcid);
-        _fileName = _fileName.Trim(['\0']);
+        Filename = NativeMethods.QueryPathOfRegTypeLib(_typeLibAttr.guid, _typeLibAttr.wMajorVerNum, _typeLibAttr.wMinorVerNum, _typeLibAttr.lcid);
+        Filename = Filename.Trim(['\0']);
 
-        _fileName = Path.GetFullPath(_fileName);
+        Filename = Path.GetFullPath(Filename);
     }
 
     public string Name => _name;
     public string Description => _description;
     public int HelpContext => _helpContext;
     public string HelpFile => _helpFile;
-    public string Filename => _fileName;
+    public string Filename { get; }
 
     public ITypeLib GetITypeLib() => _typeLib;
 
@@ -50,31 +49,31 @@ public class ComTypeLibrary
                 LoadTypes();
             }
 
-            return _typeInfos.ToArray();
+            return [.. _typeInfos];
         }
     }
 
-    public ComAliasInfo[] Typedefs => ComTypeInfos.Where(entity => entity is ComAliasInfo).Cast<ComAliasInfo>().ToArray();
+    public ComAliasInfo[] Typedefs => [.. ComTypeInfos.Where(entity => entity is ComAliasInfo).Cast<ComAliasInfo>()];
 
-    public ComCoClassInfo[] CoClasses => ComTypeInfos.Where(entity => entity is ComCoClassInfo).Cast<ComCoClassInfo>().ToArray();
+    public ComCoClassInfo[] CoClasses => [.. ComTypeInfos.Where(entity => entity is ComCoClassInfo).Cast<ComCoClassInfo>()];
 
-    public ComDispatchInfo[] Dispinterfaces => ComTypeInfos.Where(entity => entity is ComDispatchInfo).Cast<ComDispatchInfo>().ToArray();
+    public ComDispatchInfo[] Dispinterfaces => [.. ComTypeInfos.Where(entity => entity is ComDispatchInfo).Cast<ComDispatchInfo>()];
 
-    public ComEnumInfo[] Enums => ComTypeInfos.Where(entity => entity is ComEnumInfo).Cast<ComEnumInfo>().ToArray();
+    public ComEnumInfo[] Enums => [.. ComTypeInfos.Where(entity => entity is ComEnumInfo).Cast<ComEnumInfo>()];
 
-    public ComInterfaceInfo[] Interfaces => ComTypeInfos.Where(entity => entity is ComInterfaceInfo).Cast<ComInterfaceInfo>().ToArray();
+    public ComInterfaceInfo[] Interfaces => [.. ComTypeInfos.Where(entity => entity is ComInterfaceInfo).Cast<ComInterfaceInfo>()];
 
-    public ComModuleInfo[] Modules => ComTypeInfos.Where(entity => entity is ComModuleInfo).Cast<ComModuleInfo>().ToArray();
+    public ComModuleInfo[] Modules => [.. ComTypeInfos.Where(entity => entity is ComModuleInfo).Cast<ComModuleInfo>()];
 
-    public ComRecordInfo[] Structs => ComTypeInfos.Where(entity => entity is ComRecordInfo).Cast<ComRecordInfo>().ToArray();
+    public ComRecordInfo[] Structs => [.. ComTypeInfos.Where(entity => entity is ComRecordInfo).Cast<ComRecordInfo>()];
 
-    public ComUnionInfo[] Unions => ComTypeInfos.Where(entity => entity is ComUnionInfo).Cast<ComUnionInfo>().ToArray();
+    public ComUnionInfo[] Unions => [.. ComTypeInfos.Where(entity => entity is ComUnionInfo).Cast<ComUnionInfo>()];
 
     public override string ToString() => _name;
 
     private void LoadTypes()
     {
-        _typeInfos = new List<ComTypeInfo>();
+        _typeInfos = [];
 
         var count = _typeLib.GetTypeInfoCount();
 

@@ -1,6 +1,6 @@
 ﻿namespace SpyNet10;
 
-internal class TypeLibGuid
+internal static class TypeLibGuid
 {
     public const string GUID_SolidEdgeAssembly = "{3E2B3BD4-F0B9-11D1-BDFD-080036B4D502}";
     public const string GUID_SolidEdgeConstants = "{C467A6F5-27ED-11D2-BE30-080036B4D502}";

@@ -7,13 +7,11 @@ public partial class ComPropertyGrid : UserControl
 {
     public event SelectedGridItemChangedEventHandler SelectedGridItemChanged;
 
-    private GridItem _selectedGridItem;
-
     public ComPropertyGrid() => InitializeComponent();
 
     private void propertyGrid_SelectedGridItemChanged(object sender, SelectedGridItemChangedEventArgs e)
     {
-        _selectedGridItem = e.NewSelection;
+        SelectedGridItem = e.NewSelection;
 
         if (SelectedGridItemChanged != null)
         {
@@ -51,5 +49,5 @@ public partial class ComPropertyGrid : UserControl
         get => (ComPtr)propertyGrid.SelectedObject; set => propertyGrid.SelectedObject = value;
     }
 
-    public GridItem SelectedGridItem => _selectedGridItem;
+    public GridItem SelectedGridItem { get; private set; }
 }

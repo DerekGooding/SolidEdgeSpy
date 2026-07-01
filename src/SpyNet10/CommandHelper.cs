@@ -5,10 +5,10 @@ namespace SpyNet10;
 
 internal static class CommandHelper
 {
-    private static ComTypeLibrary _constantsTypeLib = null;
-    private static Dictionary<Guid, ComEnumInfo> _environmentConstantsMap = new();
+    private static ComTypeLibrary? _constantsTypeLib;
+    private static readonly Dictionary<Guid, ComEnumInfo> _environmentConstantsMap = [];
 
-    private static string[,] _categoryConstantsMap = new string[,]
+    private static readonly string[,] _categoryConstantsMap = new string[,]
     {
         { CategoryIDs.CATID_SEAssembly, "AssemblyCommandConstants" },
         { CategoryIDs.CATID_SEDMAssembly, "AssemblyCommandConstants" },
@@ -42,14 +42,14 @@ internal static class CommandHelper
             //Solid Edge Constants Type Library
             var typeLibGuid = new Guid("{C467A6F5-27ED-11D2-BE30-080036B4D502}");
 
-            _constantsTypeLib = ComTypeManager.Instance.ComTypeLibraries.Where(x => x.Guid.Equals(typeLibGuid)).FirstOrDefault();
+            _constantsTypeLib = ComTypeManager.Instance.ComTypeLibraries.FirstOrDefault(x => x.Guid.Equals(typeLibGuid));
 
             if (_constantsTypeLib != null)
             {
                 for (var i = 0; i < _categoryConstantsMap.GetLength(0); i++)
                 {
                     var guid = new Guid(_categoryConstantsMap[i, 0]);
-                    _environmentConstantsMap.Add(guid, _constantsTypeLib.Enums.Where(x => x.Name.Equals(_categoryConstantsMap[i, 1])).FirstOrDefault());
+                    _environmentConstantsMap.Add(guid, _constantsTypeLib.Enums.FirstOrDefault(x => x.Name.Equals(_categoryConstantsMap[i, 1])));
                 }
             }
         }
@@ -61,7 +61,7 @@ internal static class CommandHelper
 
     public static string ResolveCommandId(SolidEdgeFramework.Application application, int theCommandID)
     {
-        ComVariableInfo variableInfo = null;
+        ComVariableInfo? variableInfo = null;
 
         if (_environmentConstantsMap.Count == 0)
         {
@@ -70,13 +70,12 @@ internal static class CommandHelper
 
         try
         {
-            ComEnumInfo enumInfo = null;
             var environment = application.GetActiveEnvironment();
             var environmentGuid = environment.GetGuid();
 
-            if (_environmentConstantsMap.TryGetValue(environmentGuid, out enumInfo))
+            if (_environmentConstantsMap.TryGetValue(environmentGuid, out var enumInfo))
             {
-                variableInfo = enumInfo.Variables.Where(x => x.ConstantValue != null).Where(x => x.ConstantValue.Equals(theCommandID)).FirstOrDefault();
+                variableInfo = enumInfo.Variables.Where(x => x.ConstantValue != null).FirstOrDefault(x => x.ConstantValue.Equals(theCommandID));
 
                 if (variableInfo != null)
                 {

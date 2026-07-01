@@ -55,9 +55,11 @@ public partial class EventMonitor : UserControl
 
     private void SetupImageList()
     {
-        listView.SmallImageList = new ImageList();
-        listView.SmallImageList.ColorDepth = ColorDepth.Depth32Bit;
-        listView.SmallImageList.ImageSize = new Size(16, 16);
+        listView.SmallImageList = new ImageList
+        {
+            ColorDepth = ColorDepth.Depth32Bit,
+            ImageSize = new Size(16, 16)
+        };
         listView.SmallImageList.Images.Add(Resources.Event_16x16);
     }
 

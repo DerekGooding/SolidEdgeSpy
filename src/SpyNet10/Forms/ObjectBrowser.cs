@@ -29,9 +29,11 @@ public partial class ObjectBrowser : UserControl
 
             while (node != null)
             {
-                var button = new ToolStripButton(node.Caption);
-                button.ToolTipText = string.Format("{0} ({1})", node.Caption, node.TypeFullName);
-                button.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
+                var button = new ToolStripButton(node.Caption)
+                {
+                    ToolTipText = string.Format("{0} ({1})", node.Caption, node.TypeFullName),
+                    DisplayStyle = ToolStripItemDisplayStyle.ImageAndText
+                };
 
                 var imageIndex = node.ImageIndex == -1 ? 0 : node.ImageIndex;
 
@@ -45,7 +47,7 @@ public partial class ObjectBrowser : UserControl
 
             baseToolStripItems.AddRange(newToolStripItems);
             toolStrip.Items.Clear();
-            toolStrip.Items.AddRange(baseToolStripItems.ToArray());
+            toolStrip.Items.AddRange([.. baseToolStripItems]);
         }
         catch
         {
@@ -57,12 +59,9 @@ public partial class ObjectBrowser : UserControl
     {
         try
         {
-            var button = sender as ToolStripButton;
-
-            if (button != null)
+            if (sender is ToolStripButton button)
             {
-                var node = button.Tag as ComTreeNode;
-                if (node != null)
+                if (button.Tag is ComTreeNode node)
                 {
                     node.EnsureVisible();
                 }
@@ -78,9 +77,8 @@ public partial class ObjectBrowser : UserControl
     {
         comPropertyGrid.SelectedObject = null;
 
-        var comTreeNode = e.Node as ComTreeNode;
 
-        if (comTreeNode != null)
+        if (e.Node is ComTreeNode comTreeNode)
         {
             UpdateToolStrip(comTreeNode);
             UpdateRichTextBox(comTreeNode);
@@ -108,8 +106,7 @@ public partial class ObjectBrowser : UserControl
             var gridItem = e.NewSelection;
             if (gridItem != null)
             {
-                var descriptor = gridItem.PropertyDescriptor as ComPtrPropertyDescriptor;
-                if (descriptor != null)
+                if (gridItem.PropertyDescriptor is ComPtrPropertyDescriptor descriptor)
                 {
                     typeInfoRichTextBox.DescribeComPropertyInfo(descriptor.ComPropertyInfo);
                 }

@@ -7,53 +7,31 @@ public static class EnumExtensions
         var type = typeof(T);
 
         // only works with enums
-        if (!type.IsEnum) throw new ArgumentException(
-            "The type parameter T must be an enum type");
+        if (!type.IsEnum) throw new ArgumentException("The type parameter T must be an enum type");
 
         // handle each underlying type
         var numberType = Enum.GetUnderlyingType(type);
 
-        if (numberType.Equals(typeof(int)))
-        {
-            return BoxUnbox<int>(value, flags, (a, b) => (a & b) == b);
-        }
-        else if (numberType.Equals(typeof(sbyte)))
-        {
-            return BoxUnbox<sbyte>(value, flags, (a, b) => (a & b) == b);
-        }
-        else if (numberType.Equals(typeof(byte)))
-        {
-            return BoxUnbox<byte>(value, flags, (a, b) => (a & b) == b);
-        }
-        else if (numberType.Equals(typeof(short)))
-        {
-            return BoxUnbox<short>(value, flags, (a, b) => (a & b) == b);
-        }
-        else if (numberType.Equals(typeof(ushort)))
-        {
-            return BoxUnbox<ushort>(value, flags, (a, b) => (a & b) == b);
-        }
-        else if (numberType.Equals(typeof(uint)))
-        {
-            return BoxUnbox<uint>(value, flags, (a, b) => (a & b) == b);
-        }
-        else if (numberType.Equals(typeof(long)))
-        {
-            return BoxUnbox<long>(value, flags, (a, b) => (a & b) == b);
-        }
-        else if (numberType.Equals(typeof(ulong)))
-        {
-            return BoxUnbox<ulong>(value, flags, (a, b) => (a & b) == b);
-        }
-        else if (numberType.Equals(typeof(char)))
-        {
-            return BoxUnbox<char>(value, flags, (a, b) => (a & b) == b);
-        }
-        else
-        {
-            throw new ArgumentException("Unknown enum underlying type " +
-                numberType.Name + "");
-        }
+        return numberType.Equals(typeof(int))
+        ? BoxUnbox<int>(value, flags, (a, b) => (a & b) == b)
+        : numberType.Equals(typeof(sbyte))
+        ? BoxUnbox<sbyte>(value, flags, (a, b) => (a & b) == b)
+        : numberType.Equals(typeof(byte))
+        ? BoxUnbox<byte>(value, flags, (a, b) => (a & b) == b)
+        : numberType.Equals(typeof(short))
+        ? BoxUnbox<short>(value, flags, (a, b) => (a & b) == b)
+        : numberType.Equals(typeof(ushort))
+        ? BoxUnbox<ushort>(value, flags, (a, b) => (a & b) == b)
+        : numberType.Equals(typeof(uint))
+        ? BoxUnbox<uint>(value, flags, (a, b) => (a & b) == b)
+        : numberType.Equals(typeof(long))
+        ? BoxUnbox<long>(value, flags, (a, b) => (a & b) == b)
+        : numberType.Equals(typeof(ulong))
+        ? BoxUnbox<ulong>(value, flags, (a, b) => (a & b) == b)
+        : numberType.Equals(typeof(char))
+        ? BoxUnbox<char>(value, flags, (a, b) => (a & b) == b)
+        : throw new ArgumentException("Unknown enum underlying type " +
+                    numberType.Name + "");
     }
 
     /// <summary>

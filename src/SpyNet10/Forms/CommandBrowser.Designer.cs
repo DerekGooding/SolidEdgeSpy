@@ -60,7 +60,7 @@ namespace SpyNet10.Forms
             this.listViewEx.TabIndex = 7;
             this.listViewEx.UseCompatibleStateImageBehavior = false;
             this.listViewEx.View = System.Windows.Forms.View.Details;
-            this.listViewEx.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.listViewEx_ItemSelectionChanged);
+            this.listViewEx.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.ListViewEx_ItemSelectionChanged);
             // 
             // columnHeader5
             // 
@@ -100,14 +100,14 @@ namespace SpyNet10.Forms
             this.buttonStart.Size = new System.Drawing.Size(111, 22);
             this.buttonStart.Text = "Start Command";
             this.buttonStart.ToolTipText = "Start Command";
-            this.buttonStart.Click += new System.EventHandler(this.buttonStart_Click);
+            this.buttonStart.Click += new System.EventHandler(this.ButtonStart_Click);
             // 
             // textBoxCommandID
             // 
             this.textBoxCommandID.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.textBoxCommandID.Name = "textBoxCommandID";
             this.textBoxCommandID.Size = new System.Drawing.Size(75, 25);
-            this.textBoxCommandID.TextChanged += new System.EventHandler(this.textBoxCommandID_TextChanged);
+            this.textBoxCommandID.TextChanged += new System.EventHandler(this.TextBoxCommandID_TextChanged);
             // 
             // labelCommandID
             // 
@@ -122,7 +122,7 @@ namespace SpyNet10.Forms
             this.textBoxSearch.Name = "textBoxSearch";
             this.textBoxSearch.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
             this.textBoxSearch.Size = new System.Drawing.Size(100, 25);
-            this.textBoxSearch.TextAccepted += new System.EventHandler(this.textBoxSearch_TextAccepted);
+            this.textBoxSearch.TextAccepted += new System.EventHandler(this.TextBoxSearch_TextAccepted);
             // 
             // buttonSearch
             // 
@@ -132,7 +132,7 @@ namespace SpyNet10.Forms
             this.buttonSearch.Name = "buttonSearch";
             this.buttonSearch.Size = new System.Drawing.Size(23, 22);
             this.buttonSearch.Text = "Search";
-            this.buttonSearch.Click += new System.EventHandler(this.buttonSearch_Click);
+            this.buttonSearch.Click += new System.EventHandler(this.ButtonSearch_Click);
             // 
             // buttonClearSearch
             // 
@@ -142,7 +142,7 @@ namespace SpyNet10.Forms
             this.buttonClearSearch.Name = "buttonClearSearch";
             this.buttonClearSearch.Size = new System.Drawing.Size(23, 22);
             this.buttonClearSearch.Text = "Clear Search";
-            this.buttonClearSearch.Click += new System.EventHandler(this.buttonClearSearch_Click);
+            this.buttonClearSearch.Click += new System.EventHandler(this.ButtonClearSearch_Click);
             // 
             // toolStripSeparator1
             // 

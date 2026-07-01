@@ -70,7 +70,7 @@ public static class IDispatchExtensions
 
                         case VarEnum.VT_UNKNOWN:
                         case VarEnum.VT_DISPATCH:
-                            if (variant.ptr1.Equals(IntPtr.Zero) == false)
+                            if (!variant.ptr1.Equals(IntPtr.Zero))
                             {
                                 value = new ComPtr(variant.ptr1);
                                 var count = Marshal.Release(variant.ptr1);
@@ -257,7 +257,7 @@ public static class IDispatchExtensions
                                 case VarEnum.VT_UNKNOWN:
                                 case VarEnum.VT_DISPATCH:
                                     args[i] = new ComPtr(variant.ptr1);
-                                    if (((ComPtr)returnValue).IsInvalid == false)
+                                    if (!((ComPtr)returnValue).IsInvalid)
                                     {
                                         Marshal.Release(variant.ptr1);
                                     }
@@ -285,7 +285,7 @@ public static class IDispatchExtensions
                     case VarEnum.VT_UNKNOWN:
                     case VarEnum.VT_DISPATCH:
                         returnValue = new ComPtr(pVarResult.ptr1);
-                        if (((ComPtr)returnValue).IsInvalid == false)
+                        if (!((ComPtr)returnValue).IsInvalid)
                         {
                             Marshal.Release(pVarResult.ptr1);
                         }

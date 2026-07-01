@@ -11,8 +11,7 @@ namespace SpyNet10;
 
 public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 {
-    private SolidEdgeFramework.Application _application;
-    private Dictionary<IConnectionPoint, int> _connectionPoints = new();
+    private Dictionary<IConnectionPoint, int> _connectionPoints = [];
     private ConcurrentQueue<SpyNet10.Forms.EventMonitorItem> _eventQueue = new();
     private static AutoResetEvent _uiAutoResetEvent = new(false);
     private ConnectionPointController _connectionPointController;
@@ -67,7 +66,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
     {
         startupTimer.Enabled = false;
 
-        if (ConnectToSolidEdge() == false)
+        if (!ConnectToSolidEdge())
         {
             startupTimer.Enabled = true;
         }
@@ -83,13 +82,13 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
             items.Add(item);
         }
 
-        eventMonitor.LogEvents(items.ToArray());
+        eventMonitor.LogEvents([.. items]);
 
-        if (_application != null)
+        if (Application != null)
         {
             if (commandBrowser.ActiveEnvironment == null)
             {
-                commandBrowser.ActiveEnvironment = _application.GetActiveEnvironment();
+                commandBrowser.ActiveEnvironment = Application.GetActiveEnvironment();
             }
         }
     }
@@ -233,8 +232,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
         {
             ToolStripManager.RenderMode = ToolStripManagerRenderMode.Professional;
 
-            var renderer = ToolStripManager.Renderer as ToolStripProfessionalRenderer;
-            if (renderer != null)
+            if (ToolStripManager.Renderer is ToolStripProfessionalRenderer renderer)
             {
                 renderer.RoundedEdges = false;
             }
@@ -253,10 +251,10 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
         {
             if (MarshalEx.Succeeded(MarshalEx.GetActiveObject("SolidEdge.Application", out pApplication)))
             {
-                _application = pApplication.TryGetUniqueRCW<SolidEdgeFramework.Application>();
-                _connectionPointController.AdviseSink<SolidEdgeFramework.ISEApplicationEvents>(_application);
+                Application = pApplication.TryGetUniqueRCW<SolidEdgeFramework.Application>();
+                _connectionPointController.AdviseSink<SolidEdgeFramework.ISEApplicationEvents>(Application);
 
-                commandBrowser.ActiveEnvironment = _application.GetActiveEnvironment();
+                commandBrowser.ActiveEnvironment = Application.GetActiveEnvironment();
                 globalParameterBrowser.RefreshGlobalParameters();
 
                 objectBrowser.Connect();
@@ -264,7 +262,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
                 // Older versions of Solid Edge don't have the ProcessID property.
                 try
                 {
-                    processBrowser.ProcessId = _application.ProcessID;
+                    processBrowser.ProcessId = Application.ProcessID;
                 }
                 catch
                 {
@@ -295,7 +293,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            Marshal.FinalReleaseComObject(_application);
+            Marshal.FinalReleaseComObject(Application);
         }
         catch
         {
@@ -304,7 +302,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         startupTimer.Enabled = resetStartupTimer;
 
-        _application = null;
+        Application = null;
     }
 
     private void HandleAutoResetEvent()
@@ -337,7 +335,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
         }
     }
 
-    public SolidEdgeFramework.Application Application => _application;
+    public SolidEdgeFramework.Application Application { get; private set; }
 
     #region SolidEdgeFramework.ISEApplicationEvents
 
@@ -350,7 +348,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var environment = _application.GetActiveEnvironment();
+            var environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -382,7 +380,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var environment = _application.GetActiveEnvironment();
+            var environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -391,7 +389,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = string.Format(eventString, CommandHelper.ResolveCommandId(_application, theCommandID));
+            eventString = string.Format(eventString, CommandHelper.ResolveCommandId(Application, theCommandID));
         }
         catch
         {
@@ -409,7 +407,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var environment = _application.GetActiveEnvironment();
+            var environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -441,7 +439,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var environment = _application.GetActiveEnvironment();
+            var environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -468,7 +466,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var environment = _application.GetActiveEnvironment();
+            var environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -496,7 +494,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            environment = _application.GetActiveEnvironment();
+            environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -536,7 +534,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var environment = _application.GetActiveEnvironment();
+            var environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -568,7 +566,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var environment = _application.GetActiveEnvironment();
+            var environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -595,7 +593,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var environment = _application.GetActiveEnvironment();
+            var environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -622,7 +620,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var environment = _application.GetActiveEnvironment();
+            var environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -631,7 +629,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = string.Format(eventString, CommandHelper.ResolveCommandId(_application, theCommandID));
+            eventString = string.Format(eventString, CommandHelper.ResolveCommandId(Application, theCommandID));
         }
         catch
         {
@@ -649,7 +647,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var environment = _application.GetActiveEnvironment();
+            var environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -668,9 +666,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var document = theDocument as SolidEdgeFramework.SolidEdgeDocument;
-
-            if ((document != null) && (document.IsTemporary() == false))
+            if ((theDocument is SolidEdgeFramework.SolidEdgeDocument document) && (!document.IsTemporary()))
             {
                 this.BeginInvokeIfRequired(frm => frm.HandleAutoResetEvent());
 
@@ -692,7 +688,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var environment = _application.GetActiveEnvironment();
+            var environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -719,7 +715,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var environment = _application.GetActiveEnvironment();
+            var environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -746,7 +742,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var environment = _application.GetActiveEnvironment();
+            var environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -773,7 +769,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var environment = _application.GetActiveEnvironment();
+            var environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -797,7 +793,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            var environment = _application.GetActiveEnvironment();
+            var environment = Application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch

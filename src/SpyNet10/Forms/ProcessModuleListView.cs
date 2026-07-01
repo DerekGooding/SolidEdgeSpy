@@ -27,14 +27,16 @@ public class ProcessModuleListView : ListViewEx
         FullRowSelect = true;
         View = System.Windows.Forms.View.Details;
 
-        SmallImageList = new ImageList();
-        SmallImageList.ColorDepth = ColorDepth.Depth32Bit;
-        SmallImageList.ImageSize = new Size(16, 16);
+        SmallImageList = new ImageList
+        {
+            ColorDepth = ColorDepth.Depth32Bit,
+            ImageSize = new Size(16, 16)
+        };
     }
 
     public void SetItems(ProcessModuleCollection processModules)
     {
-        if (this.Created == false) return;
+        if (!this.Created) return;
 
         var list = new List<ListViewItem>();
         var processModuleList = processModules.Cast<ProcessModule>().ToList();
@@ -48,8 +50,10 @@ public class ProcessModuleListView : ListViewEx
         {
             foreach (var processModule in processModuleList)
             {
-                var item = new ListViewItem();
-                item.Text = processModule.ModuleName;
+                var item = new ListViewItem
+                {
+                    Text = processModule.ModuleName
+                };
 
                 var startAddress = string.Format("0x{0}", processModule.BaseAddress.ToString("X16"));
                 var endAddress = string.Format("0x{0}", (processModule.BaseAddress.ToInt64() + processModule.ModuleMemorySize).ToString("X16"));
@@ -69,7 +73,7 @@ public class ProcessModuleListView : ListViewEx
                     var extension = Path.GetExtension(fileName).ToLower();
                     item.ImageKey = extension;
 
-                    if (SmallImageList.Images.ContainsKey(extension) == false)
+                    if (!SmallImageList.Images.ContainsKey(extension))
                     {
                         var icon = IconTools.GetIconForFile(fileName, ShellIconSize.SmallIcon);
                         if (icon != null)
@@ -93,7 +97,7 @@ public class ProcessModuleListView : ListViewEx
 
         BeginUpdate();
         Items.Clear();
-        Items.AddRange(list.ToArray());
+        Items.AddRange([.. list]);
         AutoResizeColumns();
         EndUpdate();
     }

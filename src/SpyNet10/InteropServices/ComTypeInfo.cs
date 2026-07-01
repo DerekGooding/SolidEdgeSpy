@@ -12,10 +12,10 @@ public class ComTypeInfo
     protected TYPEATTR _typeAttr;
     protected string _name = string.Empty;
     protected string _description = string.Empty;
-    protected int _helpContext = 0;
+    protected int _helpContext;
     protected string _helpFile = string.Empty;
-    protected List<ComMemberInfo> _members = null;
-    protected List<ComImplementedTypeInfo> _implementedTypes = null;
+    protected List<ComMemberInfo> _members;
+    protected List<ComImplementedTypeInfo> _implementedTypes;
 
     public ComTypeInfo(ComTypeLibrary comTypeLibrary, ITypeInfo typeInfo, IntPtr pTypeAttr)
     {
@@ -32,7 +32,7 @@ public class ComTypeInfo
         {
             if (_implementedTypes == null)
             {
-                _implementedTypes = new List<ComImplementedTypeInfo>();
+                _implementedTypes = [];
 
                 for (var i = 0; i < _typeAttr.cImplTypes; i++)
                 {
@@ -50,7 +50,7 @@ public class ComTypeInfo
                 }
             }
 
-            return _implementedTypes.ToArray();
+            return [.. _implementedTypes];
         }
     }
 
@@ -60,11 +60,11 @@ public class ComTypeInfo
         {
             if (_members == null) LoadMembers();
 
-            return _members.ToArray();
+            return [.. _members];
         }
     }
 
-    public ComFunctionInfo[] Methods => Members.OfType<ComFunctionInfo>().Where(function => function.InvokeKind == System.Runtime.InteropServices.ComTypes.INVOKEKIND.INVOKE_FUNC).ToArray();
+    public ComFunctionInfo[] Methods => [.. Members.OfType<ComFunctionInfo>().Where(function => function.InvokeKind == System.Runtime.InteropServices.ComTypes.INVOKEKIND.INVOKE_FUNC)];
 
     public ComPropertyInfo[] Properties
     {
@@ -80,7 +80,7 @@ public class ComTypeInfo
             {
                 if (!dictionary.ContainsKey(function.Name))
                 {
-                    dictionary.Add(function.Name, new List<ComFunctionInfo>());
+                    dictionary.Add(function.Name, []);
                 }
 
                 dictionary[function.Name].Add(function);
@@ -90,14 +90,14 @@ public class ComTypeInfo
 
             while (enumerator.MoveNext())
             {
-                list.Add(new ComPropertyInfo(this, enumerator.Current.Value.ToArray()));
+                list.Add(new ComPropertyInfo(this, [.. enumerator.Current.Value]));
             }
 
-            return list.ToArray();
+            return [.. list];
         }
     }
 
-    public ComVariableInfo[] Variables => Members.OfType<ComVariableInfo>().ToArray();
+    public ComVariableInfo[] Variables => [.. Members.OfType<ComVariableInfo>()];
 
     public ComFunctionInfo[] GetMethods(bool includeInherited)
     {
@@ -115,7 +115,7 @@ public class ComTypeInfo
             return a.Name.CompareTo(b.Name);
         });
 
-        return list.GroupBy(x => x.Name).Select(s => s.First()).ToArray();
+        return [.. list.GroupBy(x => x.Name).Select(s => s.First())];
     }
 
     public ComPropertyInfo[] GetProperties(bool includeInherited)
@@ -134,7 +134,7 @@ public class ComTypeInfo
             return a.Name.CompareTo(b.Name);
         });
 
-        return list.GroupBy(x => x.Name).Select(s => s.First()).ToArray();
+        return [.. list.GroupBy(x => x.Name).Select(s => s.First())];
     }
 
     private ComFunctionInfo[] GetInheritedMethods(ComTypeInfo comTypeInfo)
@@ -145,7 +145,7 @@ public class ComTypeInfo
         {
             var comImplementedTypeInfo = comTypeInfo.ImplementedTypes[i];
 
-            if (comImplementedTypeInfo.IsSource == false)
+            if (!comImplementedTypeInfo.IsSource)
             {
                 foreach (var comFunctionInfo in comImplementedTypeInfo.ComTypeInfo.Methods)
                 {
@@ -164,7 +164,7 @@ public class ComTypeInfo
             return a.Name.CompareTo(b.Name);
         });
 
-        return list.ToArray();
+        return [.. list];
     }
 
     private ComPropertyInfo[] GetInheriteProperties(ComTypeInfo comTypeInfo)
@@ -175,7 +175,7 @@ public class ComTypeInfo
         {
             var comImplementedTypeInfo = comTypeInfo.ImplementedTypes[i];
 
-            if (comImplementedTypeInfo.IsSource == false)
+            if (!comImplementedTypeInfo.IsSource)
             {
                 foreach (var comPropertyInfo in comImplementedTypeInfo.ComTypeInfo.Properties)
                 {
@@ -194,7 +194,7 @@ public class ComTypeInfo
             return a.Name.CompareTo(b.Name);
         });
 
-        return list.ToArray();
+        return [.. list];
     }
 
     public bool IsAlias => _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_ALIAS;
@@ -224,7 +224,7 @@ public class ComTypeInfo
 
     private void LoadMembers()
     {
-        _members = new List<ComMemberInfo>();
+        _members = [];
 
         for (short i = 0; i < _typeAttr.cFuncs; i++)
         {
@@ -356,7 +356,7 @@ public class ComAliasInfo : ComTypeInfo
 
 public class ComCoClassInfo : ComTypeInfo
 {
-    private List<ComFunctionInfo> _events = null;
+    private List<ComFunctionInfo> _events;
 
     public ComCoClassInfo(ComTypeLibrary parent, ITypeInfo typeInfo, IntPtr pTypeAttr)
         : base(parent, typeInfo, pTypeAttr)
@@ -369,7 +369,7 @@ public class ComCoClassInfo : ComTypeInfo
         {
             if (_events == null)
             {
-                _events = new List<ComFunctionInfo>();
+                _events = [];
 
                 for (var i = 0; i < ImplementedTypes.Length; i++)
                 {
@@ -379,7 +379,7 @@ public class ComCoClassInfo : ComTypeInfo
                     {
                         foreach (var comFunctionInfo in comImplementedTypeInfo.ComTypeInfo.Methods)
                         {
-                            if (comFunctionInfo.IsRestricted == false)
+                            if (!comFunctionInfo.IsRestricted)
                             {
                                 if (_events.FirstOrDefault(x => x.Name.Equals(comFunctionInfo.Name)) == null)
                                 {
@@ -396,7 +396,7 @@ public class ComCoClassInfo : ComTypeInfo
                 });
             }
 
-            return _events.ToArray();
+            return [.. _events];
         }
     }
 }

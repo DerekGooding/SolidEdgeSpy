@@ -5,8 +5,6 @@ namespace SpyNet10.Forms;
 
 public partial class ProcessBrowser : UserControl
 {
-    private int _processId = 0;
-
     public ProcessBrowser() => InitializeComponent();
 
     private void ProcessBrowser_Load(object sender, EventArgs e) => RefreshProcessInformation();
@@ -17,12 +15,12 @@ public partial class ProcessBrowser : UserControl
     {
         Cursor.Current = Cursors.WaitCursor;
 
-        if (_processId == 0) return;
+        if (ProcessId == 0) return;
 
         try
         {
             processModuleListView.Items.Clear();
-            var process = Process.GetProcessById(_processId);
+            var process = Process.GetProcessById(ProcessId);
             processModuleListView.SetItems(process.Modules);
         }
         catch
@@ -35,10 +33,10 @@ public partial class ProcessBrowser : UserControl
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public int ProcessId
     {
-        get => _processId;
+        get;
         set
         {
-            _processId = value;
+            field = value;
 
             try
             {
@@ -57,8 +55,7 @@ public partial class ProcessBrowser : UserControl
             if (processModuleListView.SelectedItems.Count == 1)
             {
                 var listViewItem = processModuleListView.SelectedItems[0];
-                var processModule = listViewItem.Tag as ProcessModule;
-                if (processModule != null)
+                if (listViewItem.Tag is ProcessModule processModule)
                 {
                     var info = new NativeMethods.SHELLEXECUTEINFO();
                     info.cbSize = System.Runtime.InteropServices.Marshal.SizeOf(info);

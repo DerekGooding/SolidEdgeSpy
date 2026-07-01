@@ -19,7 +19,7 @@ public sealed class NavigationController<T> : IDisposable where T : class
         AssignButton(forward);
 
         _limit = (int)limitList;
-        _enabled = true;
+        Enabled = true;
     }
 
     #region Fields
@@ -30,9 +30,6 @@ public sealed class NavigationController<T> : IDisposable where T : class
 
     private readonly ToolStripButton _buttonBack;
     private readonly ToolStripButton _buttonForward;
-
-    private bool _allowDuplicates;
-    private bool _enabled;
     private bool _inProc;
     private readonly int _limit;
 
@@ -40,22 +37,16 @@ public sealed class NavigationController<T> : IDisposable where T : class
 
     #region Public Interface
 
-    public bool AllowDuplicates
-    {
-        get => _allowDuplicates; set => _allowDuplicates = value;
-    }
+    public bool AllowDuplicates { get; set; }
 
-    public bool Enabled
-    {
-        get => _enabled; set => _enabled = value;
-    }
+    public bool Enabled { get; set; }
 
     public T CurrentItem
     {
         get => _currentItem;
         set
         {
-            if (_enabled)
+            if (Enabled)
             {
                 _currentItem = value;
 
@@ -67,7 +58,6 @@ public sealed class NavigationController<T> : IDisposable where T : class
         }
     }
 
-    /// <summary></summary>
     public void Clear()
     {
         _currentItem = default(T);
@@ -76,7 +66,7 @@ public sealed class NavigationController<T> : IDisposable where T : class
         EnableButtons();
     }
 
-    /// <summary></summary>
+
     public void Remove(T item)
     {
         if (item != null)
@@ -112,7 +102,7 @@ public sealed class NavigationController<T> : IDisposable where T : class
 
     private void AddCurrentItem(T item)
     {
-        if (!_allowDuplicates && _linkedList.Contains(item))
+        if (!AllowDuplicates && _linkedList.Contains(item))
         {
             _linkedList.Remove(item);
         }
@@ -124,7 +114,7 @@ public sealed class NavigationController<T> : IDisposable where T : class
         EnableButtons();
     }
 
-    private void toolStripButton_ButtonClick(object sender, EventArgs e)
+    private void ToolStripButton_ButtonClick(object sender, EventArgs e)
     {
         var node = sender.Equals(_buttonBack) ? _currentLinkedListNode.Next : _currentLinkedListNode.Previous;
 
@@ -135,7 +125,7 @@ public sealed class NavigationController<T> : IDisposable where T : class
         EnableButtons();
     }
 
-    private void cms_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+    private void Cms_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
     {
         var node = (LinkedListNode<T>)e.ClickedItem.Tag;
 
@@ -169,7 +159,7 @@ public sealed class NavigationController<T> : IDisposable where T : class
     {
         if (toolStripButton != null)
         {
-            toolStripButton.Click += toolStripButton_ButtonClick;
+            toolStripButton.Click += ToolStripButton_ButtonClick;
             toolStripButton.Enabled = false;
         }
     }
@@ -184,17 +174,14 @@ public sealed class NavigationController<T> : IDisposable where T : class
 
     private void OnGotoItem(LinkedListNode<T> node)
     {
-        Debug.Assert(node != null && node.Value != null);
+        Debug.Assert(node?.Value != null);
 
         var item = node.Value;
 
         // block client setting CurrentItem
         _inProc = true;
 
-        if (GotoItem != null)
-        {
-            GotoItem(this, new NavigationControllerEventArgs<T>(item));
-        }
+        GotoItem?.Invoke(this, new NavigationControllerEventArgs<T>(item));
 
         _inProc = false;
     }
@@ -212,11 +199,7 @@ public sealed class NavigationController<T> : IDisposable where T : class
 }
 
 /// <summary>Provides data for the History{T}.GotoItem event</summary>
-public class NavigationControllerEventArgs<T> : EventArgs
+public class NavigationControllerEventArgs<T>(T item) : EventArgs
 {
-    public NavigationControllerEventArgs(T item) => _Item = item;
-
-    private readonly T _Item;
-
-    public T Item => _Item;
+    public T Item { get; } = item;
 }

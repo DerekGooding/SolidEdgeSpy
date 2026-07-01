@@ -7,8 +7,6 @@ public class ToolStripSpringTextBox : ToolStripTextBox
 {
     public event EventHandler TextAccepted;
 
-    private string _inactiveText;
-
     public ToolStripSpringTextBox() => this.Text = InactiveText;
 
     public override string Text
@@ -65,7 +63,7 @@ public class ToolStripSpringTextBox : ToolStripTextBox
     {
         base.OnTextChanged(e);
 
-        if (this.Focused == false)
+        if (!this.Focused)
         {
             if (string.IsNullOrEmpty(this.Text))
             {
@@ -139,11 +137,11 @@ public class ToolStripSpringTextBox : ToolStripTextBox
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public string InactiveText
     {
-        get => _inactiveText;
+        get;
         set
         {
-            _inactiveText = value;
-            Text = _inactiveText;
+            field = value;
+            Text = field;
         }
     }
 }

@@ -4,7 +4,7 @@ namespace SpyNet10.Forms;
 
 public class TypeInfoRichTextBox : RichTextBoxEx
 {
-    private static Color _colorBlue = Color.FromArgb(0, 102, 204);
+    private static readonly Color _colorBlue = Color.FromArgb(0, 102, 204);
 
     public void DescribeComTypeLibrary(ComTypeLibrary comTypeLibrary)
     {
@@ -302,7 +302,7 @@ public class TypeInfoRichTextBox : RichTextBoxEx
 
     private void WriteSummary(string summary)
     {
-        if (string.IsNullOrWhiteSpace(summary) == false)
+        if (!string.IsNullOrWhiteSpace(summary))
         {
             AppendText(Environment.NewLine);
             AppendText("Summary:", ForeColor, FontStyle.Bold);
@@ -314,7 +314,7 @@ public class TypeInfoRichTextBox : RichTextBoxEx
 
     private void WriteGuid(Guid guid)
     {
-        if (guid.Equals(Guid.Empty) == false)
+        if (!guid.Equals(Guid.Empty))
         {
             AppendText(Environment.NewLine);
             AppendText("GUID:", ForeColor, FontStyle.Bold);

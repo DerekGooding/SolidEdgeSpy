@@ -9,10 +9,10 @@ public delegate void ComTypeInfoSelectedHandler(object sender, ComTypeInfo comTy
 
 public sealed class ComTypeManager
 {
-    private List<ComTypeLibrary> _typeLibraries = new();
+    private readonly List<ComTypeLibrary> _typeLibraries = [];
 
     private static volatile ComTypeManager _instance;
-    private static object _syncRoot = new();
+    private static readonly object _syncRoot = new();
 
     public event ComTypeLibrarySelectedHandler ComTypeLibrarySelected;
 
@@ -125,7 +125,7 @@ public sealed class ComTypeManager
         return null;
     }
 
-    public ComTypeLibrary[] ComTypeLibraries => _typeLibraries.ToArray();
+    public ComTypeLibrary[] ComTypeLibraries => [.. _typeLibraries];
 
     public bool HasComType(string fullName)
     {

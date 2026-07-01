@@ -48,9 +48,9 @@ public partial class GlobalParameterBrowser : UserControl
 
 public class GlobalParameterInfo : ICustomTypeDescriptor, IDisposable
 {
-    private ComPtr _pApplication = IntPtr.Zero;
-    private List<SolidEdgeFramework.ApplicationGlobalConstants> _colorGlobalConstants = new();
-    private string _filter;
+    private readonly ComPtr _pApplication = IntPtr.Zero;
+    private readonly List<SolidEdgeFramework.ApplicationGlobalConstants> _colorGlobalConstants = [];
+    private readonly string _filter;
 
     public GlobalParameterInfo(ComPtr pApplication, string filter)
     {
@@ -117,7 +117,7 @@ public class GlobalParameterInfo : ICustomTypeDescriptor, IDisposable
 
                 foreach (var variableInfo in enumInfo.Variables)
                 {
-                    if (string.IsNullOrEmpty(_filter) == false)
+                    if (!string.IsNullOrEmpty(_filter))
                     {
                         if (variableInfo.Name.IndexOf(_filter, StringComparison.OrdinalIgnoreCase) == -1)
                         {
@@ -177,7 +177,7 @@ public class GlobalParameterInfo : ICustomTypeDescriptor, IDisposable
 #endif
                                         }
 
-                                        if (color.IsEmpty == false)
+                                        if (!color.IsEmpty)
                                         {
                                             description = new StringBuilder();
                                             description.AppendLine(property.Description);
@@ -228,37 +228,28 @@ public class GlobalParameterInfo : ICustomTypeDescriptor, IDisposable
 
 public class GlobalParameterProperty
 {
-    private string _name = string.Empty;
-    private bool _readonly = false;
-    private object _value = null;
-    private string _description = string.Empty;
-    private Type _type;
-
     public GlobalParameterProperty(string sName, string description, object value, Type type, bool bReadOnly)
     {
-        _name = sName;
-        _description = description;
-        _value = value;
-        _type = type;
-        _readonly = bReadOnly;
+        Name = sName;
+        Description = description;
+        Value = value;
+        Type = type;
+        ReadOnly = bReadOnly;
     }
 
-    public Type Type => _type;
+    public Type Type { get; }
 
-    public bool ReadOnly => _readonly;
+    public bool ReadOnly { get; }
 
-    public string Name => _name;
-    public string Description => _description;
+    public string Name { get; } = string.Empty;
+    public string Description { get; } = string.Empty;
 
-    public object Value
-    {
-        get => _value; set => _value = value;
-    }
+    public object Value { get; set; }
 }
 
 public class GlobalParameterPropertyDescriptor : PropertyDescriptor
 {
-    private GlobalParameterProperty _property;
+    private readonly GlobalParameterProperty _property;
 
     public GlobalParameterPropertyDescriptor(ref GlobalParameterProperty property, Attribute[] attrs)
         : base(property.Name, attrs) => _property = property;

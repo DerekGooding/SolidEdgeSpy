@@ -200,14 +200,14 @@ public static class MarshalEx
             }
             finally
             {
-                if (pUnk.Equals(IntPtr.Zero) == false)
+                if (!pUnk.Equals(IntPtr.Zero))
                 {
                     Marshal.Release(pUnk);
                 }
             }
         }
 
-        return list.ToArray();
+        return [.. list];
     }
 
     public static bool Succeeded(int hr) => NativeMethods.Succeeded(hr);

@@ -5,8 +5,6 @@ namespace SpyNet10.Forms;
 
 public class ComTypeListView : ListViewEx
 {
-    private ComTypeInfo _comTypeInfo;
-
     public const int MethodImageIndex = 0;
     public const int PropertyImageIndex = 1;
     public const int EventImageIndex = 2;
@@ -19,11 +17,11 @@ public class ComTypeListView : ListViewEx
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public ComTypeInfo SelectedComTypeInfo
     {
-        get => _comTypeInfo;
+        get;
 
         set
         {
-            _comTypeInfo = value;
+            field = value;
             UpdateItems();
         }
     }
@@ -32,9 +30,9 @@ public class ComTypeListView : ListViewEx
     {
         var list = new List<ListViewItem>();
 
-        if (_comTypeInfo != null)
+        if (SelectedComTypeInfo != null)
         {
-            foreach (var comFunctionInfo in _comTypeInfo.GetMethods(true))
+            foreach (var comFunctionInfo in SelectedComTypeInfo.GetMethods(true))
             {
                 var item = new ListViewItem(comFunctionInfo.Name);
                 item.SubItems.Add(comFunctionInfo.Description);
@@ -49,7 +47,7 @@ public class ComTypeListView : ListViewEx
                 list.Add(item);
             }
 
-            foreach (var comPropertyInfo in _comTypeInfo.GetProperties(true))
+            foreach (var comPropertyInfo in SelectedComTypeInfo.GetProperties(true))
             {
                 var item = new ListViewItem(comPropertyInfo.Name);
                 item.SubItems.Add(comPropertyInfo.Description);
@@ -67,7 +65,7 @@ public class ComTypeListView : ListViewEx
                 list.Add(item);
             }
 
-            foreach (var comVariableInfo in _comTypeInfo.Variables)
+            foreach (var comVariableInfo in SelectedComTypeInfo.Variables)
             {
                 var item = new ListViewItem(comVariableInfo.Name);
                 item.SubItems.Add(comVariableInfo.Description);
@@ -77,9 +75,9 @@ public class ComTypeListView : ListViewEx
                 list.Add(item);
             }
 
-            if (_comTypeInfo is ComCoClassInfo)
+            if (SelectedComTypeInfo is ComCoClassInfo)
             {
-                var comCoClassInfo = (ComCoClassInfo)_comTypeInfo;
+                var comCoClassInfo = (ComCoClassInfo)SelectedComTypeInfo;
                 foreach (var comFunctionInfo in comCoClassInfo.Events)
                 {
                     var item = new ListViewItem(comFunctionInfo.Name);
@@ -96,16 +94,18 @@ public class ComTypeListView : ListViewEx
 
         BeginUpdate();
         Items.Clear();
-        Items.AddRange(list.ToArray());
+        Items.AddRange([.. list]);
         AutoResizeColumns();
         EndUpdate();
     }
 
     private void SetupImageList()
     {
-        SmallImageList = new ImageList();
-        SmallImageList.ColorDepth = ColorDepth.Depth32Bit;
-        SmallImageList.ImageSize = new Size(16, 16);
+        SmallImageList = new ImageList
+        {
+            ColorDepth = ColorDepth.Depth32Bit,
+            ImageSize = new Size(16, 16)
+        };
         SmallImageList.Images.Add(Resources.Method_16x16);
         SmallImageList.Images.Add(Resources.Property_16x16);
         SmallImageList.Images.Add(Resources.Event_16x16);

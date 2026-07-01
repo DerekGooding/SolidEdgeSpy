@@ -4,8 +4,6 @@ namespace SpyNet10.Forms;
 
 public class TabControlEx : TabControl
 {
-    private bool _headerVisible = true;
-
     public TabControlEx()
         : base()
     {
@@ -20,7 +18,7 @@ public class TabControlEx : TabControl
             // Hide tabs by trapping the TCM_ADJUSTRECT message
             if (m.Msg == 0x1328)
             {
-                if (_headerVisible == false)
+                if (!HeaderVisible)
                 {
                     m.Result = (IntPtr)1;
                     bHandled = true;
@@ -28,15 +26,12 @@ public class TabControlEx : TabControl
             }
         }
 
-        if (bHandled == false)
+        if (!bHandled)
         {
             base.WndProc(ref m);
         }
     }
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public bool HeaderVisible
-    {
-        get => _headerVisible; set => _headerVisible = value;
-    }
+    public bool HeaderVisible { get; set; } = true;
 }

@@ -15,7 +15,7 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
     public ComPtr(IntPtr pUnk)
         : this()
     {
-        if (pUnk.Equals(IntPtr.Zero) == false)
+        if (!pUnk.Equals(IntPtr.Zero))
         {
             Marshal.AddRef(pUnk);
         }
@@ -26,7 +26,7 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
     public ComPtr(ComPtr p)
         : this()
     {
-        if ((p != null) && (p.IsInvalid == false))
+        if ((p != null) && (!p.IsInvalid))
         {
             this.SetHandle(p.handle);
             Marshal.AddRef(p.handle);
@@ -59,7 +59,7 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
 
     protected override bool ReleaseHandle()
     {
-        if (IsInvalid == false)
+        if (!IsInvalid)
         {
             try
             {
@@ -251,7 +251,7 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
 
     public object TryGetRCW()
     {
-        if (IsInvalid == false)
+        if (!IsInvalid)
         {
             return Marshal.GetObjectForIUnknown(this.handle);
         }
@@ -261,7 +261,7 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
 
     public object TryGetUniqueRCW()
     {
-        if (IsInvalid == false)
+        if (!IsInvalid)
         {
             return Marshal.GetUniqueObjectForIUnknown(this.handle);
         }
@@ -597,45 +597,34 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
 
 public class ComPtrProperty
 {
-    private string _name = string.Empty;
-    private object _value = null;
-    private string _description = string.Empty;
-    private Type _type;
-    private VarEnum _variantType = default(VarEnum);
-    private bool _readonly = false;
-
     public ComPtrProperty(string sName, string description, object value, Type type, VarEnum variantType, bool bReadOnly)
     {
-        _name = sName;
-        _description = description;
-        _value = value;
-        _type = type;
-        _variantType = variantType;
-        _readonly = bReadOnly;
+        Name = sName;
+        Description = description;
+        Value = value;
+        Type = type;
+        VariantType = variantType;
+        ReadOnly = bReadOnly;
     }
 
-    public string Name => _name;
-    public string Description => _description;
-    public Type Type => _type;
-    public VarEnum VariantType => _variantType;
-    public bool ReadOnly => _readonly;
+    public string Name { get; } = string.Empty;
+    public string Description { get; } = string.Empty;
+    public Type Type { get; }
+    public VarEnum VariantType { get; }
+    public bool ReadOnly { get; }
 
-    public object Value
-    {
-        get => _value; set => _value = value;
-    }
+    public object Value { get; set; }
 }
 
 public class ComPtrPropertyDescriptor : PropertyDescriptor
 {
-    private ComPtrProperty _comPtrProperty;
-    private ComPropertyInfo _comPropertyInfo;
+    private readonly ComPtrProperty _comPtrProperty;
 
     public ComPtrPropertyDescriptor(ref ComPtrProperty comPtrProperty, ComPropertyInfo comPropertyInfo, Attribute[] attrs)
         : base(comPtrProperty.Name, attrs)
     {
         _comPtrProperty = comPtrProperty;
-        _comPropertyInfo = comPropertyInfo;
+        ComPropertyInfo = comPropertyInfo;
     }
 
     #region PropertyDescriptor specific
@@ -647,7 +636,7 @@ public class ComPtrPropertyDescriptor : PropertyDescriptor
     public override object GetValue(object component)
     {
 #if DEBUG
-        if (_comPropertyInfo == null)
+        if (ComPropertyInfo == null)
         {
             if (_comPtrProperty.Name.Equals("[RefCount]"))
             {
@@ -664,9 +653,8 @@ public class ComPtrPropertyDescriptor : PropertyDescriptor
         {
         }
 
-        var p = component as ComPtr;
 
-        if (p != null)
+        if (component is ComPtr p)
         {
             object value = null;
             if (MarshalEx.Succeeded(p.TryInvokePropertyGet(_comPtrProperty.Name, out value)))
@@ -693,9 +681,7 @@ public class ComPtrPropertyDescriptor : PropertyDescriptor
 
     public override void SetValue(object component, object value)
     {
-        var p = component as ComPtr;
-
-        if (p != null)
+        if (component is ComPtr p)
         {
             if (MarshalEx.Succeeded(p.TryInvokePropertySet(_comPtrProperty.Name, value)))
             {
@@ -708,7 +694,7 @@ public class ComPtrPropertyDescriptor : PropertyDescriptor
 
     #endregion PropertyDescriptor specific
 
-    public ComPropertyInfo ComPropertyInfo => _comPropertyInfo;
+    public ComPropertyInfo ComPropertyInfo { get; }
     public VarEnum VariantType => _comPtrProperty.VariantType;
 
     public override string ToString() => string.Format("{0} [{1}]", _comPtrProperty.Name, _comPtrProperty.VariantType);

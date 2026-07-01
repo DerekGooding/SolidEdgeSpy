@@ -4,7 +4,7 @@ namespace SpyNet10.Forms;
 
 public partial class TypeBrowser : UserControl
 {
-    private bool _scanComplete = false;
+    private bool _scanComplete;
     private readonly NavigationController<object> _navigationController;
 
     public TypeBrowser()
@@ -33,16 +33,13 @@ public partial class TypeBrowser : UserControl
     {
         try
         {
-            var treeNode = e.Item as TreeNode;
-            var listViewItem = e.Item as ListViewItem;
-
-            if (treeNode != null)
+            if (e.Item is TreeNode treeNode)
             {
                 treeNode.TreeView.SelectedNode = treeNode;
                 treeNode.EnsureVisible();
                 treeNode.TreeView.Focus();
             }
-            else if (listViewItem != null)
+            else if (e.Item is ListViewItem listViewItem)
             {
                 listViewItem.Selected = true;
                 listViewItem.EnsureVisible();
@@ -110,9 +107,7 @@ public partial class TypeBrowser : UserControl
 
         foreach (TreeNode node in nodes)
         {
-            var comTypeLibraryTreeNode = node as ComTypeLibraryTreeNode;
-
-            if (comTypeLibraryTreeNode != null)
+            if (node is ComTypeLibraryTreeNode comTypeLibraryTreeNode)
             {
                 if (comTypeLibraryTreeNode.ComTypeLibrary.Name.Equals(comTypeLibrary.Name, StringComparison.OrdinalIgnoreCase))
                 {
@@ -133,10 +128,7 @@ public partial class TypeBrowser : UserControl
 
         foreach (TreeNode node in nodes)
         {
-            var comTypeLibraryTreeNode = node as ComTypeLibraryTreeNode;
-            var comTypeInfoTreeNode = node as ComTypeInfoTreeNode;
-
-            if (comTypeLibraryTreeNode != null)
+            if (node is ComTypeLibraryTreeNode comTypeLibraryTreeNode)
             {
                 if (comTypeLibraryTreeNode.ComTypeLibrary.Name.Equals(comTypeInfo.ComTypeLibrary.Name, StringComparison.OrdinalIgnoreCase))
                 {
@@ -144,7 +136,7 @@ public partial class TypeBrowser : UserControl
                     return;
                 }
             }
-            else if (comTypeInfoTreeNode != null)
+            else if (node is ComTypeInfoTreeNode comTypeInfoTreeNode)
             {
                 if (comTypeInfoTreeNode.ComTypeInfo.Name.Equals(comTypeInfo.Name, StringComparison.OrdinalIgnoreCase))
                 {
@@ -166,33 +158,27 @@ public partial class TypeBrowser : UserControl
         _navigationController.Remove(comTypeListView.Items.OfType<ListViewItem>().ToArray());
         _navigationController.CurrentItem = e.Node;
 
-        var comTypeLibraryTreeNode = e.Node as ComTypeLibraryTreeNode;
-        var comTypeInfoTreeNode = e.Node as ComTypeInfoTreeNode;
-        var comFunctionInfoTreeNode = e.Node as ComFunctionInfoTreeNode;
-        var comPropertyInfoTreeNode = e.Node as ComPropertyInfoTreeNode;
-        var comVariableInfoTreeNode = e.Node as ComVariableInfoTreeNode;
-
         comTypeListView.SelectedComTypeInfo = null;
 
-        if (comTypeLibraryTreeNode != null)
+        if (e.Node is ComTypeLibraryTreeNode comTypeLibraryTreeNode)
         {
             typeInfoRichTextBox.DescribeComTypeLibrary(comTypeLibraryTreeNode.ComTypeLibrary);
         }
-        else if (comTypeInfoTreeNode != null)
+        else if (e.Node is ComTypeInfoTreeNode comTypeInfoTreeNode)
         {
             var comTypeInfo = comTypeInfoTreeNode.ComTypeInfo;
             comTypeListView.SelectedComTypeInfo = comTypeInfo;
             typeInfoRichTextBox.DescribeComTypeInfo(comTypeInfo);
         }
-        else if (comFunctionInfoTreeNode != null)
+        else if (e.Node is ComFunctionInfoTreeNode comFunctionInfoTreeNode)
         {
             typeInfoRichTextBox.DescribeComFunctionInfo(comFunctionInfoTreeNode.ComFunctionInfo);
         }
-        else if (comPropertyInfoTreeNode != null)
+        else if (e.Node is ComPropertyInfoTreeNode comPropertyInfoTreeNode)
         {
             typeInfoRichTextBox.DescribeComPropertyInfo(comPropertyInfoTreeNode.ComPropertyInfo);
         }
-        else if (comVariableInfoTreeNode != null)
+        else if (e.Node is ComVariableInfoTreeNode comVariableInfoTreeNode)
         {
             typeInfoRichTextBox.DescribeComVariableInfo(comVariableInfoTreeNode.ComVariableInfo);
         }
@@ -252,7 +238,7 @@ public partial class TypeBrowser : UserControl
 
     private void comTypeTreeView_FilterChanged(object sender, EventArgs e)
     {
-        if (comTypeTreeView.IsFiltered == false)
+        if (!comTypeTreeView.IsFiltered)
         {
             textBoxSearch.Text = string.Empty;
         }

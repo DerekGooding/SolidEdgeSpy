@@ -7,41 +7,28 @@ namespace SpyNet10.Forms;
 
 public partial class CommandBrowser : UserControl
 {
-    private List<ListViewItem> _commandItems = new();
-    private string _filter;
-    private SolidEdgeFramework.Environment _activeEnvironment;
+    private readonly List<ListViewItem> _commandItems = [];
+    private string? _filter;
 
     public CommandBrowser() => InitializeComponent();
 
-    private void textBoxSearch_TextAccepted(object sender, EventArgs e) => buttonSearch_Click(sender, e);
+    private void TextBoxSearch_TextAccepted(object sender, EventArgs e) => ButtonSearch_Click(sender, e);
 
-    private void buttonSearch_Click(object sender, EventArgs e)
+    private void ButtonSearch_Click(object sender, EventArgs e)
     {
         _filter = textBoxSearch.Text;
         LoadItems();
     }
 
-    private void buttonClearSearch_Click(object sender, EventArgs e)
+    private void ButtonClearSearch_Click(object sender, EventArgs e)
     {
         _filter = null;
         LoadItems();
     }
 
-    private void textBoxCommandID_TextChanged(object sender, EventArgs e)
-    {
-        var commandId = 0;
+    private void TextBoxCommandID_TextChanged(object sender, EventArgs e) => buttonStart.Enabled = int.TryParse(textBoxCommandID.Text, out _);
 
-        if (int.TryParse(textBoxCommandID.Text, out commandId))
-        {
-            buttonStart.Enabled = true;
-        }
-        else
-        {
-            buttonStart.Enabled = false;
-        }
-    }
-
-    private void buttonStart_Click(object sender, EventArgs e)
+    private void ButtonStart_Click(object sender, EventArgs e)
     {
         var commandId = 0;
 
@@ -49,7 +36,7 @@ public partial class CommandBrowser : UserControl
         {
             if (int.TryParse(textBoxCommandID.Text, out commandId))
             {
-                var application = _activeEnvironment.Application;
+                var application = ActiveEnvironment.Application;
                 application.StartCommand((SolidEdgeFramework.SolidEdgeCommandConstants)commandId);
             }
         }
@@ -58,7 +45,7 @@ public partial class CommandBrowser : UserControl
         }
     }
 
-    private void listViewEx_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+    private void ListViewEx_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
     {
         textBoxCommandID.Text = string.Empty;
 
@@ -82,29 +69,31 @@ public partial class CommandBrowser : UserControl
         listViewEx.Items.Clear();
         _commandItems.Clear();
 
-        if (_activeEnvironment == null) return;
+        if (ActiveEnvironment == null) return;
 
         try
         {
             //Solid Edge Constants Type Library
             var typeLibGuid = new Guid("{C467A6F5-27ED-11D2-BE30-080036B4D502}");
 
-            var constantsTypeLib = ComTypeManager.Instance.ComTypeLibraries.Where(x => x.Guid.Equals(typeLibGuid)).FirstOrDefault();
+            var constantsTypeLib = ComTypeManager.Instance.ComTypeLibraries.FirstOrDefault(x => x.Guid.Equals(typeLibGuid));
 
             if (constantsTypeLib != null)
             {
-                var commandType = _activeEnvironment.GetCommandType();
+                var commandType = ActiveEnvironment.GetCommandType();
 
                 if (commandType != null)
                 {
-                    var enumInfo = constantsTypeLib.Enums.Where(x => x.Name.Equals(commandType.Name)).FirstOrDefault();
+                    var enumInfo = constantsTypeLib.Enums.FirstOrDefault(x => x.Name.Equals(commandType.Name));
 
                     foreach (var variable in enumInfo.Variables)
                     {
                         var enumName = variable.Name;
                         var enumValue = variable.ConstantValue;
-                        var listViewItem = new ListViewItem();
-                        listViewItem.Text = enumName;
+                        var listViewItem = new ListViewItem
+                        {
+                            Text = enumName
+                        };
                         listViewItem.SubItems.Add(string.Format("{0}", (int)enumValue));
                         listViewItem.SubItems.Add(commandType.FullName);
                         listViewItem.Tag = (int)enumValue;
@@ -112,10 +101,7 @@ public partial class CommandBrowser : UserControl
                     }
 
                     // Sort commands by name.
-                    _commandItems.Sort(delegate (ListViewItem a, ListViewItem b)
-                    {
-                        return a.Text.CompareTo(b.Text);
-                    });
+                    _commandItems.Sort((a, b) => a.Text.CompareTo(b.Text));
                 }
             }
         }
@@ -125,24 +111,21 @@ public partial class CommandBrowser : UserControl
 
         if (string.IsNullOrWhiteSpace(_filter))
         {
-            listViewEx.Items.AddRange(_commandItems.ToArray());
+            listViewEx.Items.AddRange([.. _commandItems]);
         }
         else
         {
-            var idFilter = 0;
-
-            if (int.TryParse(_filter, out idFilter) == false)
+            if (!int.TryParse(_filter, out var idFilter))
             {
                 var filteredItems = _commandItems
-                    .Where(x => x.Text.IndexOf(_filter, StringComparison.OrdinalIgnoreCase) >= 0)
+                    .Where(x => x.Text.Contains(_filter, StringComparison.OrdinalIgnoreCase))
                     .ToArray();
                 listViewEx.Items.AddRange(filteredItems);
             }
             else
             {
                 var filteredItems = _commandItems
-                    .Where(x => x.Tag != null)
-                    .Where(x => x.Tag.ToString().IndexOf(_filter, StringComparison.OrdinalIgnoreCase) >= 0)
+                    .Where(x => x.Tag?.ToString()?.IndexOf(_filter, StringComparison.OrdinalIgnoreCase) >= 0)
                     .ToArray();
 
                 listViewEx.Items.AddRange(filteredItems);
@@ -153,16 +136,16 @@ public partial class CommandBrowser : UserControl
     }
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public SolidEdgeFramework.Environment ActiveEnvironment
+    public SolidEdgeFramework.Environment? ActiveEnvironment
     {
-        get => _activeEnvironment;
+        get;
         set
         {
-            _activeEnvironment = value;
+            field = value;
 
             try
             {
-                textBoxSearch.Text = null;
+                textBoxSearch.Text = string.Empty;
                 textBoxCommandID.Text = string.Empty;
                 LoadItems();
             }

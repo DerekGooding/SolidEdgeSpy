@@ -102,7 +102,7 @@ public class VariantPtr : SafeHandle
 
 public class VariantArgPtr : SafeHandle
 {
-    private List<IntPtr> _pVariants = new();
+    private readonly List<IntPtr> _pVariants = [];
 
     public VariantArgPtr(int count)
         : base(IntPtr.Zero, true)
@@ -137,7 +137,7 @@ public class VariantArgPtr : SafeHandle
 
     protected override bool ReleaseHandle()
     {
-        if (IsInvalid == false)
+        if (!IsInvalid)
         {
             try
             {

@@ -22,16 +22,11 @@ public class ComTreeView : TreeView
     public const int OpenFolderImageIndex = 7;
     public const int EventImageIndex = 8;
 
-    internal VisualStyleRenderer OpenedRenderer = null;
-    internal VisualStyleRenderer ClosedRenderer = null;
-    internal VisualStyleRenderer ItemHoverRenderer = null;
-    internal VisualStyleRenderer ItemSelectedRenderer = null;
-    internal VisualStyleRenderer LostFocusSelectedRenderer = null;
-
-    private bool _showNullObjects = true;
-    private bool _showEmptyCollections = true;
-    private bool _showProperties = false;
-    private bool _showMethods = false;
+    internal VisualStyleRenderer _openedRenderer;
+    internal VisualStyleRenderer _closedRenderer;
+    internal VisualStyleRenderer _itemHoverRenderer;
+    internal VisualStyleRenderer _itemSelectedRenderer;
+    internal VisualStyleRenderer _lostFocusSelectedRenderer;
 
     public ComTreeView()
         : base()
@@ -104,9 +99,8 @@ public class ComTreeView : TreeView
                 e.Node.SelectedImageIndex = e.Node.ImageIndex;
             }
 
-            var comPtrTreeNode = e.Node as ComPtrTreeNode;
 
-            if (comPtrTreeNode != null)
+            if (e.Node is ComPtrTreeNode comPtrTreeNode)
             {
                 var childNodes = GetChildren(comPtrTreeNode);
                 CleanupAndRemoveNodes(comPtrTreeNode.Nodes);
@@ -141,11 +135,10 @@ public class ComTreeView : TreeView
 
     protected override void OnDrawNode(DrawTreeNodeEventArgs e)
     {
-        if (e.Node.IsVisible == false) return;
+        if (!e.Node.IsVisible) return;
 
-        var node = e.Node as ComTreeNode;
 
-        if (node == null) return;
+        if (e.Node is not ComTreeNode node) return;
 
         var baseFont = Font;
         var captionFontStyle = FontStyle.Regular;
@@ -189,19 +182,15 @@ public class ComTreeView : TreeView
             e.Graphics.DrawImage(nodeImage, rectImage.X + 2, rectImage.Y + 2);
         }
 
-        var comPtrTreeNode = node as ComPtrTreeNode;
 
-        if (comPtrTreeNode != null)
+        if (node is ComPtrTreeNode comPtrTreeNode)
         {
-            if (node is ComPtrTreeNode)
+            if (node is ComPtrTreeNode && comPtrTreeNode.GetFunctionHasParameters)
             {
-                if (comPtrTreeNode.GetFunctionHasParameters)
-                {
-                    captionColor = Color.DarkGray;
-                }
+                captionColor = Color.DarkGray;
             }
 
-            if ((comPtrTreeNode != null) && (comPtrTreeNode.CollectionCount > 0))
+            if (comPtrTreeNode?.CollectionCount > 0)
             {
                 captionFontStyle = FontStyle.Bold;
             }
@@ -295,7 +284,7 @@ public class ComTreeView : TreeView
     //    }
     //}
 
-    private void DrawNodeExpander(ComTreeNode node, Graphics graphics, Rectangle rect)
+    private static void DrawNodeExpander(ComTreeNode node, Graphics graphics, Rectangle rect)
     {
         if (node.IsExpanded)
         {
@@ -319,9 +308,9 @@ public class ComTreeView : TreeView
         {
             if (Focused)
             {
-                if (ItemSelectedRenderer != null)
+                if (_itemSelectedRenderer != null)
                 {
-                    ItemSelectedRenderer.DrawBackground(e.Graphics, rect);
+                    _itemSelectedRenderer.DrawBackground(e.Graphics, rect);
                 }
                 else
                 {
@@ -334,9 +323,9 @@ public class ComTreeView : TreeView
             }
             else
             {
-                if (LostFocusSelectedRenderer != null)
+                if (_lostFocusSelectedRenderer != null)
                 {
-                    LostFocusSelectedRenderer.DrawBackground(e.Graphics, rect);
+                    _lostFocusSelectedRenderer.DrawBackground(e.Graphics, rect);
                 }
                 else
                 {
@@ -350,9 +339,9 @@ public class ComTreeView : TreeView
         }
         else if ((e.State & TreeNodeStates.Hot) != 0)
         {
-            if (ItemHoverRenderer != null)
+            if (_itemHoverRenderer != null)
             {
-                ItemHoverRenderer.DrawBackground(e.Graphics, rect);
+                _itemHoverRenderer.DrawBackground(e.Graphics, rect);
             }
             else
             {
@@ -384,27 +373,24 @@ public class ComTreeView : TreeView
 
         foreach (var childNode in childNodes)
         {
-            var comPtrTreeNode = childNode as ComPtrTreeNode;
-            var comPropertyTreeNode = childNode as ComPropertyTreeNode;
-
-            if (comPtrTreeNode != null)
+            if (childNode is ComPtrTreeNode comPtrTreeNode)
             {
-                if ((comPtrTreeNode.ComPtr.IsInvalid) && (_showNullObjects == false))
+                if ((comPtrTreeNode.ComPtr.IsInvalid) && (!ShowNullObjects))
                 {
                     continue;
                 }
 
                 if (comPtrTreeNode.IsCollection)
                 {
-                    if ((comPtrTreeNode.IsEmptyCollection) && (_showEmptyCollections == false))
+                    if ((comPtrTreeNode.IsEmptyCollection) && (!ShowEmptyCollections))
                     {
                         continue;
                     }
                 }
             }
-            else if (comPropertyTreeNode != null)
+            else if (childNode is ComPropertyTreeNode comPropertyTreeNode)
             {
-                if (_showProperties == false)
+                if (!ShowProperties)
                 {
                     continue;
                 }
@@ -413,9 +399,9 @@ public class ComTreeView : TreeView
             filteredComTreeNodes.Add(childNode);
         }
 
-        SetImageIndex(filteredComTreeNodes.ToArray());
+        SetImageIndex([.. filteredComTreeNodes]);
 
-        return filteredComTreeNodes.ToArray();
+        return [.. filteredComTreeNodes];
     }
 
     private ComTreeNode[] GetChildren(ComPtr comPtr)
@@ -442,7 +428,7 @@ public class ComTreeView : TreeView
 
                 if (comTreeNode != null)
                 {
-                    if ((comTreeNode is ComPropertyTreeNode) && (_showProperties == false))
+                    if ((comTreeNode is ComPropertyTreeNode) && (!ShowProperties))
                     {
                         continue;
                     }
@@ -471,11 +457,12 @@ public class ComTreeView : TreeView
                             returnValue = null;
                             if (MarshalEx.Succeeded(comPtr.TryInvokeMethod("Item", [i], out returnValue)))
                             {
-                                var pItem = returnValue as ComPtr;
-                                if ((pItem != null) && (pItem.IsInvalid == false))
+                                if ((returnValue is ComPtr pItem) && (!pItem.IsInvalid))
                                 {
-                                    var comPtrItemTreeNode = new ComPtrItemTreeNode((ComPtr)returnValue, comFunctionInfo);
-                                    comPtrItemTreeNode.Caption = string.Format("{0}({1})", comFunctionInfo.Name, i);
+                                    var comPtrItemTreeNode = new ComPtrItemTreeNode((ComPtr)returnValue, comFunctionInfo)
+                                    {
+                                        Caption = string.Format("{0}({1})", comFunctionInfo.Name, i)
+                                    };
                                     comPtrItemTreeNode.Nodes.Add("...");
                                     collectionChildNodes.Add(comPtrItemTreeNode);
                                     foundCount++;
@@ -492,11 +479,12 @@ public class ComTreeView : TreeView
                                 returnValue = null;
                                 if (MarshalEx.Succeeded(comPtr.TryInvokeMethod("Item", [0], out returnValue)))
                                 {
-                                    var pItem = returnValue as ComPtr;
-                                    if ((pItem != null) && (pItem.IsInvalid == false))
+                                    if ((returnValue is ComPtr pItem) && (!pItem.IsInvalid))
                                     {
-                                        var comPtrItemTreeNode = new ComPtrItemTreeNode((ComPtr)returnValue, comFunctionInfo);
-                                        comPtrItemTreeNode.Caption = string.Format("{0}({1})", comFunctionInfo.Name, 0);
+                                        var comPtrItemTreeNode = new ComPtrItemTreeNode((ComPtr)returnValue, comFunctionInfo)
+                                        {
+                                            Caption = string.Format("{0}({1})", comFunctionInfo.Name, 0)
+                                        };
                                         comPtrItemTreeNode.Nodes.Add("...");
                                         collectionChildNodes.Insert(0, comPtrItemTreeNode);
                                     }
@@ -516,7 +504,7 @@ public class ComTreeView : TreeView
                 childNodes.AddRange(collectionChildNodes.ToArray());
             }
 
-            if (_showMethods)
+            if (ShowMethods)
             {
                 foreach (var comFunctionInfo in comTypeInfo.GetMethods(true))
                 {
@@ -532,7 +520,7 @@ public class ComTreeView : TreeView
             GlobalExceptionHandler.HandleException();
         }
 
-        return childNodes.ToArray();
+        return [.. childNodes];
     }
 
     private ComTreeNode GetChild(ComPtr comPtr, ComPropertyInfo comPropertyInfo)
@@ -577,7 +565,7 @@ public class ComTreeView : TreeView
             {
                 comTreeNode = new ComPtrTreeNode(comPropertyInfo, (ComPtr)propertyValue);
 
-                if (((ComPtr)propertyValue).IsInvalid == false)
+                if (!((ComPtr)propertyValue).IsInvalid)
                 {
                     comTreeNode.Nodes.Add(string.Empty);
                 }
@@ -589,19 +577,11 @@ public class ComTreeView : TreeView
         }
         else
         {
-            switch (getFunctionInfo.ReturnParameter.VariantType)
+            comTreeNode = getFunctionInfo.ReturnParameter.VariantType switch
             {
-                case VarEnum.VT_DISPATCH:
-                case VarEnum.VT_PTR:
-                case VarEnum.VT_ARRAY:
-                case VarEnum.VT_UNKNOWN:
-                    comTreeNode = new ComPtrTreeNode(comPropertyInfo, new ComPtr());
-                    break;
-
-                default:
-                    comTreeNode = new ComPropertyTreeNode(comPropertyInfo, null);
-                    break;
-            }
+                VarEnum.VT_DISPATCH or VarEnum.VT_PTR or VarEnum.VT_ARRAY or VarEnum.VT_UNKNOWN => new ComPtrTreeNode(comPropertyInfo, new ComPtr()),
+                _ => new ComPropertyTreeNode(comPropertyInfo, null),
+            };
         }
 
         return comTreeNode;
@@ -618,9 +598,6 @@ public class ComTreeView : TreeView
     private void SetImageIndex(ComTreeNode comTreeNode)
     {
         var comPtrTreeNode = comTreeNode as ComPtrTreeNode;
-        var comMethodTreeNode = comTreeNode as ComMethodTreeNode;
-        var comPropertyTreeNode = comTreeNode as ComPropertyTreeNode;
-        var comPtrItemTreeNode = comTreeNode as ComPtrItemTreeNode;
 
         if (comPtrTreeNode != null)
         {
@@ -631,15 +608,15 @@ public class ComTreeView : TreeView
                 comPtrTreeNode.ImageIndex = comPtrTreeNode.IsEmptyCollection ? NullCollectionImageIndex : CollectionImageIndex;
             }
         }
-        else if (comMethodTreeNode != null)
+        else if (comTreeNode is ComMethodTreeNode comMethodTreeNode)
         {
             comMethodTreeNode.ImageIndex = MethodImageIndex;
         }
-        else if (comPropertyTreeNode != null)
+        else if (comTreeNode is ComPropertyTreeNode comPropertyTreeNode)
         {
             comPropertyTreeNode.ImageIndex = PropertyImageIndex;
         }
-        else if (comPtrItemTreeNode != null)
+        else if (comTreeNode is ComPtrItemTreeNode comPtrItemTreeNode)
         {
             comPtrItemTreeNode.ImageIndex = comPtrTreeNode.ComPtr.IsInvalid ? NullObjectImageIndex : ObjectImageIndex;
         }
@@ -665,9 +642,8 @@ public class ComTreeView : TreeView
         {
             CleanupAndRemoveNodes(node.Nodes);
 
-            var comObjectTreeNode = node as ComPtrTreeNode;
 
-            if ((comObjectTreeNode != null) && (comObjectTreeNode.ComPtr.IsInvalid == false))
+            if ((node is ComPtrTreeNode comObjectTreeNode) && (!comObjectTreeNode.ComPtr.IsInvalid))
             {
                 comObjectTreeNode.ComPtr.Dispose();
             }
@@ -697,9 +673,11 @@ public class ComTreeView : TreeView
 
     private void SetupImageList()
     {
-        ImageList = new ImageList();
-        ImageList.ColorDepth = ColorDepth.Depth32Bit;
-        ImageList.ImageSize = new Size(16, 16);
+        ImageList = new ImageList
+        {
+            ColorDepth = ColorDepth.Depth32Bit,
+            ImageSize = new Size(16, 16)
+        };
         ImageList.Images.Add(Resources.ComTreeItemBlue_16x16);
         ImageList.Images.Add(Resources.ComTreeItemGray_16x16);
         ImageList.Images.Add(Resources.Property_16x16);
@@ -717,11 +695,11 @@ public class ComTreeView : TreeView
         {
             if (System.Windows.Forms.Application.RenderWithVisualStyles)
             {
-                OpenedRenderer = new VisualStyleRenderer("Explorer::TreeView", 2, 2);
-                ClosedRenderer = new VisualStyleRenderer("Explorer::TreeView", 2, 1);
-                ItemHoverRenderer = new VisualStyleRenderer("Explorer::TreeView", 1, 2);
-                ItemSelectedRenderer = new VisualStyleRenderer("Explorer::TreeView", 1, 3);
-                LostFocusSelectedRenderer = new VisualStyleRenderer("Explorer::TreeView", 1, 5);
+                _openedRenderer = new VisualStyleRenderer("Explorer::TreeView", 2, 2);
+                _closedRenderer = new VisualStyleRenderer("Explorer::TreeView", 2, 1);
+                _itemHoverRenderer = new VisualStyleRenderer("Explorer::TreeView", 1, 2);
+                _itemSelectedRenderer = new VisualStyleRenderer("Explorer::TreeView", 1, 3);
+                _lostFocusSelectedRenderer = new VisualStyleRenderer("Explorer::TreeView", 1, 5);
                 //Selectedx2Renderer = new VisualStyleRenderer("Explorer::TreeView", 1, 6);
             }
         }
@@ -734,61 +712,43 @@ public class ComTreeView : TreeView
     #region Properties
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public bool ShowNullObjects
-    {
-        get => _showNullObjects;
-        set
+    public bool ShowNullObjects { get; set
         {
-            _showNullObjects = value;
+            field = value;
 
             ReExpandNodeUp(SelectedNode);
-        }
-    }
+        } } = true;
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public bool ShowEmptyCollections
-    {
-        get => _showEmptyCollections;
-        set
+    public bool ShowEmptyCollections { get; set
         {
-            _showEmptyCollections = value;
+            field = value;
 
             ReExpandNodeUp(SelectedNode);
-        }
-    }
+        } } = true;
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public bool ShowProperties
-    {
-        get => _showProperties;
-        set
+    public bool ShowProperties { get; set
         {
-            _showProperties = value;
+            field = value;
 
             ReExpandNodeUp(SelectedNode);
-        }
-    }
+        } }
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public bool ShowMethods
-    {
-        get => _showMethods;
-        set
+    public bool ShowMethods { get; set
         {
-            _showMethods = value;
+            field = value;
 
             ReExpandNodeUp(SelectedNode);
-        }
-    }
+        } }
 
     #endregion Properties
 }
 
 public class ComTreeNode : TreeNode
 {
-    private string _caption = string.Empty;
     private string _value = string.Empty;
-    private string _typeFullName = string.Empty;
 
     public ComTreeNode()
         : base()
@@ -802,28 +762,24 @@ public class ComTreeNode : TreeNode
     {
         var spacer = new string(' ', 10);
 
-        Text = _caption;
+        Text = Caption;
 
         if (!string.IsNullOrWhiteSpace(_value))
         {
             Text = string.Format("{0}{1}{2}", Text, spacer, _value);
         }
 
-        if (!string.IsNullOrWhiteSpace(_typeFullName))
+        if (!string.IsNullOrWhiteSpace(TypeFullName))
         {
-            Text = string.Format("{0}{1}{2}", Text, spacer, _typeFullName);
+            Text = string.Format("{0}{1}{2}", Text, spacer, TypeFullName);
         }
     }
 
-    public string Caption
-    {
-        get => _caption;
-        set
+    public string Caption { get; set
         {
-            _caption = value;
+            field = value;
             UpdateNodeText();
-        }
-    }
+        } } = string.Empty;
 
     public virtual string Value
     {
@@ -835,24 +791,17 @@ public class ComTreeNode : TreeNode
         }
     }
 
-    public string TypeFullName
-    {
-        get => _typeFullName;
-        set
+    public string TypeFullName { get; set
         {
-            _typeFullName = value;
+            field = value;
             UpdateNodeText();
-        }
-    }
+        } } = string.Empty;
 }
 
 public class ComPtrTreeNode : ComTreeNode
 {
-    private ComPtr _comPtr = IntPtr.Zero;
-    private ComPropertyInfo _comPropertyInfo = null;
-    protected ComFunctionInfo _comFunctionInfo = null;
-    private bool _getFunctionHasParameters = false;
-    protected bool _isCollection = false;
+    protected ComFunctionInfo? _comFunctionInfo;
+    protected bool _isCollection;
     public int _collectionCount = -1;
 
     public ComPtrTreeNode(string caption, ComPtr comPtr)
@@ -860,11 +809,11 @@ public class ComPtrTreeNode : ComTreeNode
     {
         if (comPtr != null)
         {
-            _comPtr = comPtr;
+            ComPtr = comPtr;
 
-            if (_comPtr.IsInvalid == false)
+            if (!ComPtr.IsInvalid)
             {
-                var comTypeInfo = _comPtr.TryGetComTypeInfo();
+                var comTypeInfo = ComPtr.TryGetComTypeInfo();
                 if (comTypeInfo != null)
                 {
                     TypeFullName = comTypeInfo.FullName;
@@ -874,11 +823,11 @@ public class ComPtrTreeNode : ComTreeNode
                     TypeFullName = "IUnknown";
                 }
 
-                _isCollection = _comPtr.TryIsCollection();
+                _isCollection = ComPtr.TryIsCollection();
 
                 if (_isCollection)
                 {
-                    _collectionCount = _comPtr.TryGetItemCount();
+                    _collectionCount = ComPtr.TryGetItemCount();
                 }
 
                 string[] propertyNames = ["Name", "Caption", "StyleName", "ID", "Count", "Environment", "Description", "CommandString"];
@@ -895,19 +844,19 @@ public class ComPtrTreeNode : ComTreeNode
     public ComPtrTreeNode(ComPropertyInfo comPropertyInfo, ComPtr comPtr)
         : this(comPropertyInfo.Name, comPtr)
     {
-        _comPropertyInfo = comPropertyInfo;
+        ComPropertyInfo = comPropertyInfo;
 
-        if ((_comPropertyInfo != null) && (_comPropertyInfo.GetFunction != null))
+        if (ComPropertyInfo?.GetFunction != null)
         {
-            _comFunctionInfo = _comPropertyInfo.GetFunction;
-            _getFunctionHasParameters = _comPropertyInfo.GetFunctionHasParameters;
+            _comFunctionInfo = ComPropertyInfo.GetFunction;
+            GetFunctionHasParameters = ComPropertyInfo.GetFunctionHasParameters;
         }
     }
 
-    public ComPtr ComPtr => _comPtr;
-    public ComPropertyInfo ComPropertyInfo => _comPropertyInfo;
-    public ComFunctionInfo ComFunctionInfo => _comFunctionInfo;
-    public bool GetFunctionHasParameters => _getFunctionHasParameters;
+    public ComPtr ComPtr { get; } = IntPtr.Zero;
+    public ComPropertyInfo? ComPropertyInfo { get; }
+    public ComFunctionInfo? ComFunctionInfo => _comFunctionInfo;
+    public bool GetFunctionHasParameters { get; }
     public bool IsCollection => _isCollection;
     public bool IsEmptyCollection => (_isCollection) && (_collectionCount <= 0);
     public int CollectionCount => _collectionCount;
@@ -915,23 +864,20 @@ public class ComPtrTreeNode : ComTreeNode
 
 public class ComMethodTreeNode : ComTreeNode
 {
-    private ComFunctionInfo _comFunctionInfo = null;
-
     public ComMethodTreeNode(ComFunctionInfo comFunctionInfo)
-        : base(comFunctionInfo.Name) => _comFunctionInfo = comFunctionInfo;
+        : base(comFunctionInfo.Name) => ComFunctionInfo = comFunctionInfo;
 
-    public ComFunctionInfo ComFunctionInfo => _comFunctionInfo;
+    public ComFunctionInfo ComFunctionInfo { get; }
 }
 
 public class ComPropertyTreeNode : ComTreeNode
 {
-    private ComPropertyInfo _comPropertyInfo = null;
     private object _value;
 
     public ComPropertyTreeNode(ComPropertyInfo comPropertyInfo, object value)
         : base(comPropertyInfo.Name)
     {
-        _comPropertyInfo = comPropertyInfo;
+        ComPropertyInfo = comPropertyInfo;
 
         if (value != null)
         {
@@ -944,20 +890,13 @@ public class ComPropertyTreeNode : ComTreeNode
     {
         get
         {
-            var comPtrTreeNode = this.Parent as ComPtrTreeNode;
-
-            if ((comPtrTreeNode != null) && (comPtrTreeNode.ComPtr.IsInvalid == false))
+            if ((Parent is ComPtrTreeNode comPtrTreeNode) && (!comPtrTreeNode.ComPtr.IsInvalid))
             {
-                var getComFunctionInfo = _comPropertyInfo.GetFunction;
+                var getComFunctionInfo = ComPropertyInfo.GetFunction;
 
-                if (getComFunctionInfo != null)
+                if (getComFunctionInfo != null && MarshalEx.Succeeded(comPtrTreeNode.ComPtr.TryInvokePropertyGet(getComFunctionInfo.DispId, out var value)))
                 {
-                    object value = null;
-
-                    if (MarshalEx.Succeeded(comPtrTreeNode.ComPtr.TryInvokePropertyGet(getComFunctionInfo.DispId, out value)))
-                    {
-                        _value = value;
-                    }
+                    _value = value;
                 }
             }
 
@@ -967,7 +906,7 @@ public class ComPropertyTreeNode : ComTreeNode
         set => base.Value = value;
     }
 
-    public ComPropertyInfo ComPropertyInfo => _comPropertyInfo;
+    public ComPropertyInfo ComPropertyInfo { get; }
 }
 
 public class ComPtrItemTreeNode : ComPtrTreeNode

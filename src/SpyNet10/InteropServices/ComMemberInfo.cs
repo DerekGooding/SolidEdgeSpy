@@ -10,7 +10,7 @@ public abstract class ComMemberInfo
     internal ComTypeInfo _comTypeInfo;
     internal string _name = string.Empty;
     internal string _description = string.Empty;
-    internal int _helpContext = 0;
+    internal int _helpContext;
     internal string _helpFile = string.Empty;
 
     public ComMemberInfo(ComTypeInfo comTypeInfo) => _comTypeInfo = comTypeInfo;
@@ -24,10 +24,9 @@ public abstract class ComMemberInfo
 
 public class ComFunctionInfo : ComMemberInfo
 {
-    private IntPtr _pFuncDesc = IntPtr.Zero;
+    private readonly IntPtr _pFuncDesc = IntPtr.Zero;
     private FUNCDESC _funcDesc;
-    private List<ComParameterInfo> _parameters = new();
-    private ComParameterInfo _returnParameter;
+    private List<ComParameterInfo> _parameters = [];
 
     public ComFunctionInfo(ComTypeInfo parent, IntPtr pFuncDesc)
         : base(parent)
@@ -42,7 +41,7 @@ public class ComFunctionInfo : ComMemberInfo
         LoadParameters();
     }
 
-    public ComParameterInfo ReturnParameter => _returnParameter;
+    public ComParameterInfo ReturnParameter { get; private set; }
 
     public ComParameterInfo[] Parameters
     {
@@ -53,7 +52,7 @@ public class ComFunctionInfo : ComMemberInfo
                 LoadParameters();
             }
 
-            return _parameters.ToArray();
+            return [.. _parameters];
         }
     }
 
@@ -78,7 +77,7 @@ public class ComFunctionInfo : ComMemberInfo
 
     private void LoadParameters()
     {
-        _parameters = new List<ComParameterInfo>();
+        _parameters = [];
 
         var rgBstrNames = new string[_funcDesc.cParams + 1];
         var pcNames = 0;
@@ -86,7 +85,7 @@ public class ComFunctionInfo : ComMemberInfo
 
         var pElemDesc = _funcDesc.lprgelemdescParam;
 
-        _returnParameter = new ComParameterInfo(this, rgBstrNames[0], _funcDesc.elemdescFunc);
+        ReturnParameter = new ComParameterInfo(this, rgBstrNames[0], _funcDesc.elemdescFunc);
 
         if (_funcDesc.cParams > 0)
         {
@@ -142,7 +141,7 @@ public class ComFunctionInfo : ComMemberInfo
 
 public class ComPropertyInfo : ComMemberInfo
 {
-    private List<ComFunctionInfo> _functions = new();
+    private readonly List<ComFunctionInfo> _functions = [];
 
     public ComPropertyInfo(ComTypeInfo parent, ComFunctionInfo[] functions)
         : base(parent)
@@ -185,19 +184,18 @@ public class ComPropertyInfo : ComMemberInfo
 public class ComVariableInfo : ComMemberInfo
 {
     private VARDESC _varDesc;
-    private object _constantValue;
 
     public ComVariableInfo(ComTypeInfo parent, VARDESC varDesc, object constantValue)
         : base(parent)
     {
         _varDesc = varDesc;
         _comTypeInfo.GetITypeInfo().GetDocumentation(_varDesc.memid, out _name, out _description, out _helpContext, out _helpFile);
-        _constantValue = constantValue;
+        ConstantValue = constantValue;
         if (_description == null) _description = string.Empty;
         if (_helpFile == null) _helpFile = string.Empty;
     }
 
-    public object ConstantValue => _constantValue;
+    public object ConstantValue { get; }
     public VARDESC VariableDescription => _varDesc;
     public VARKIND VariableKind => _varDesc.varkind;
     public VARFLAGS VariableFlags => (VARFLAGS)_varDesc.wVarFlags;
@@ -219,19 +217,17 @@ public class ComVariableInfo : ComMemberInfo
 
 public class ComParameterInfo
 {
-    private ComFunctionInfo _comFunctionInfo;
-    private string _name;
     private ELEMDESC _elemDesc;
 
     public ComParameterInfo(ComFunctionInfo comFunctionInfo, string name, ELEMDESC elemDesc)
     {
-        _comFunctionInfo = comFunctionInfo;
-        _name = name;
+        ComFunctionInfo = comFunctionInfo;
+        Name = name;
         _elemDesc = elemDesc;
     }
 
-    public ComFunctionInfo ComFunctionInfo => _comFunctionInfo;
-    public string Name => _name;
+    public ComFunctionInfo ComFunctionInfo { get; }
+    public string Name { get; }
     public ELEMDESC ELEMDESC => _elemDesc;
     public VarEnum VariantType => (VarEnum)_elemDesc.tdesc.vt;
 
@@ -243,5 +239,5 @@ public class ComParameterInfo
     public bool HasDefault => _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FHASDEFAULT);
     public bool HasCustomData => _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FHASCUSTDATA);
 
-    public override string ToString() => _name;
+    public override string ToString() => Name;
 }
