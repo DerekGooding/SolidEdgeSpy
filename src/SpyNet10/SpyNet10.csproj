@@ -1,0 +1,89 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SolidEdge.Community.Net9" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="AboutForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\CommandBrowser.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Forms\ComPropertyGrid.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Forms\ComTreeView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Forms\ComTypeListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Forms\ComTypeTreeView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Forms\EventMonitor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Forms\GlobalParameterBrowser.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Forms\ListViewEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Forms\ObjectBrowser.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Forms\ProcessBrowser.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Forms\ProcessModuleListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Forms\RichTextBoxEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Forms\SelectEventsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\TabControlEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Forms\ToolStripSpringTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Forms\TypeBrowser.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Forms\TypeInfoRichTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources.resx">
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
