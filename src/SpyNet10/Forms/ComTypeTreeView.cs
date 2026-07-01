@@ -53,7 +53,7 @@ public class ComTypeTreeView : TreeView
     {
         base.OnHandleCreated(e);
 
-        int Style = 0;
+        var Style = 0;
 
         if (DoubleBuffered)
         {
@@ -93,25 +93,25 @@ public class ComTypeTreeView : TreeView
     {
         if (e.Node.IsVisible == false) return;
 
-        ComTypeTreeNode node = e.Node as ComTypeTreeNode;
+        var node = e.Node as ComTypeTreeNode;
 
         if (node == null) return;
 
-        Font baseFont = Font;
-        Color captionColor = ForeColor;
-        Color caption2Color = Color.Green;
-        TextFormatFlags textFormatFlags = TextFormatFlags.Left | TextFormatFlags.SingleLine | TextFormatFlags.VerticalCenter;
+        var baseFont = Font;
+        var captionColor = ForeColor;
+        var caption2Color = Color.Green;
+        var textFormatFlags = TextFormatFlags.Left | TextFormatFlags.SingleLine | TextFormatFlags.VerticalCenter;
 
-        Rectangle rectNode = node.Bounds;
-        Rectangle rectExpander = new Rectangle(Indent * node.Level, rectNode.Y, ItemHeight, ItemHeight);
-        Rectangle rectImage = new Rectangle(rectExpander.X + rectExpander.Width, rectNode.Y, ItemHeight, ItemHeight);
+        var rectNode = node.Bounds;
+        var rectExpander = new Rectangle(Indent * node.Level, rectNode.Y, ItemHeight, ItemHeight);
+        var rectImage = new Rectangle(rectExpander.X + rectExpander.Width, rectNode.Y, ItemHeight, ItemHeight);
 
         rectImage.X = rectNode.X - rectImage.Width;
         rectExpander.X = rectNode.X - rectImage.Width - rectExpander.Width;
 
         DrawNodeExpander(node, e.Graphics, rectExpander);
 
-        Rectangle rectSelected = rectImage;
+        var rectSelected = rectImage;
         rectSelected.Width = e.Bounds.Width - rectImage.X;
 
         DrawNodeRectangle(e, rectSelected);
@@ -120,7 +120,7 @@ public class ComTypeTreeView : TreeView
 
         if (ImageList != null)
         {
-            int imageIndex = node.ImageIndex;
+            var imageIndex = node.ImageIndex;
             if ((imageIndex == -1) && (ImageList.Images.Count > 0))
             {
                 imageIndex = 0;
@@ -134,11 +134,11 @@ public class ComTypeTreeView : TreeView
 
         if (nodeImage != null)
         {
-            int z = ItemHeight - rectImage.Height;
+            var z = ItemHeight - rectImage.Height;
             e.Graphics.DrawImage(nodeImage, rectImage.X + 2, rectImage.Y + 2);
         }
 
-        Rectangle rectCaption = rectNode;
+        var rectCaption = rectNode;
 
         rectCaption.Width = TextRenderer.MeasureText(node.Text, baseFont).Width;
         TextRenderer.DrawText(e.Graphics, node.Text, baseFont, rectCaption, captionColor, textFormatFlags);
@@ -161,8 +161,8 @@ public class ComTypeTreeView : TreeView
 
     private void DrawNodeRectangle(DrawTreeNodeEventArgs e, Rectangle rect)
     {
-        Color fillColor = Color.Empty;
-        Color borderColor = Color.Empty;
+        var fillColor = Color.Empty;
+        var borderColor = Color.Empty;
 
         if ((e.State & TreeNodeStates.Selected) != 0)
         {
@@ -254,15 +254,15 @@ public class ComTypeTreeView : TreeView
     {
         Cursor.Current = Cursors.WaitCursor;
 
-        if (String.IsNullOrWhiteSpace(Filter))
+        if (string.IsNullOrWhiteSpace(Filter))
         {
-            List<ComTypeTreeNode> nodes = new List<ComTypeTreeNode>();
+            var nodes = new List<ComTypeTreeNode>();
 
             try
             {
-                foreach (ComTypeLibrary comTypeLibrary in ComTypeManager.Instance.ComTypeLibraries)
+                foreach (var comTypeLibrary in ComTypeManager.Instance.ComTypeLibraries)
                 {
-                    ComTypeLibraryTreeNode comTypeLibraryTreeNode = new ComTypeLibraryTreeNode(comTypeLibrary);
+                    var comTypeLibraryTreeNode = new ComTypeLibraryTreeNode(comTypeLibrary);
                     nodes.Add(comTypeLibraryTreeNode);
                     RefreshNode(comTypeLibraryTreeNode);
                 }
@@ -289,26 +289,26 @@ public class ComTypeTreeView : TreeView
 
         if (node is ComTypeLibraryTreeNode)
         {
-            ComTypeLibraryTreeNode comTypeLibraryTreeNode = (ComTypeLibraryTreeNode)node;
-            ComTypeLibrary comTypeLibrary = comTypeLibraryTreeNode.ComTypeLibrary;
+            var comTypeLibraryTreeNode = (ComTypeLibraryTreeNode)node;
+            var comTypeLibrary = comTypeLibraryTreeNode.ComTypeLibrary;
 
-            foreach (ComTypeInfo comTypeInfo in comTypeLibrary.ComTypeInfos)
+            foreach (var comTypeInfo in comTypeLibrary.ComTypeInfos)
             {
                 if (comTypeInfo.IsHidden) continue;
 
-                ComTypeInfoTreeNode comTypeInfoTreeNode = new ComTypeInfoTreeNode(comTypeInfo);
+                var comTypeInfoTreeNode = new ComTypeInfoTreeNode(comTypeInfo);
                 comTypeLibraryTreeNode.Nodes.Add(comTypeInfoTreeNode);
                 RefreshNode(comTypeInfoTreeNode);
             }
         }
         else if (node is ComTypeInfoTreeNode)
         {
-            ComTypeInfoTreeNode comTypeInfoTreeNode = (ComTypeInfoTreeNode)node;
-            ComTypeInfo comTypeInfo = comTypeInfoTreeNode.ComTypeInfo;
+            var comTypeInfoTreeNode = (ComTypeInfoTreeNode)node;
+            var comTypeInfo = comTypeInfoTreeNode.ComTypeInfo;
 
-            foreach (ComImplementedTypeInfo comImplementedTypeInfo in comTypeInfo.ImplementedTypes)
+            foreach (var comImplementedTypeInfo in comTypeInfo.ImplementedTypes)
             {
-                ComTypeInfoTreeNode impComTypeInfoTreeNode = new ComTypeInfoTreeNode(comImplementedTypeInfo.ComTypeInfo);
+                var impComTypeInfoTreeNode = new ComTypeInfoTreeNode(comImplementedTypeInfo.ComTypeInfo);
                 comTypeInfoTreeNode.Nodes.Add(impComTypeInfoTreeNode);
                 RefreshNode(impComTypeInfoTreeNode);
             }
@@ -317,33 +317,33 @@ public class ComTypeTreeView : TreeView
 
     private void RefreshNodesFiltered()
     {
-        List<ComTypeTreeNode> list = new List<ComTypeTreeNode>();
-        ComTypeTreeNode[] filterednodes = new ComTypeTreeNode[] { };
-        int iFilter = 0;
+        var list = new List<ComTypeTreeNode>();
+        ComTypeTreeNode[] filterednodes = [];
+        var iFilter = 0;
 
         try
         {
             if (int.TryParse(_filter, out iFilter) == false)
             {
-                foreach (ComTypeLibrary comTypeLibrary in ComTypeManager.Instance.ComTypeLibraries)
+                foreach (var comTypeLibrary in ComTypeManager.Instance.ComTypeLibraries)
                 {
-                    foreach (ComTypeInfo comTypeInfo in comTypeLibrary.ComTypeInfos)
+                    foreach (var comTypeInfo in comTypeLibrary.ComTypeInfos)
                     {
                         if (comTypeInfo.IsHidden) continue;
 
                         list.Add(new ComTypeInfoTreeNode(comTypeInfo));
 
-                        foreach (ComFunctionInfo comFunctionInfo in comTypeInfo.Methods)
+                        foreach (var comFunctionInfo in comTypeInfo.Methods)
                         {
                             list.Add(new ComFunctionInfoTreeNode(comFunctionInfo));
                         }
 
-                        foreach (ComPropertyInfo comPropertyInfo in comTypeInfo.Properties)
+                        foreach (var comPropertyInfo in comTypeInfo.Properties)
                         {
                             list.Add(new ComPropertyInfoTreeNode(comPropertyInfo));
                         }
 
-                        foreach (ComVariableInfo comVariableInfo in comTypeInfo.Variables)
+                        foreach (var comVariableInfo in comTypeInfo.Variables)
                         {
                             list.Add(new ComVariableInfoTreeNode(comVariableInfo));
                         }
@@ -354,13 +354,13 @@ public class ComTypeTreeView : TreeView
             }
             else
             {
-                foreach (ComTypeLibrary comTypeLibrary in ComTypeManager.Instance.ComTypeLibraries)
+                foreach (var comTypeLibrary in ComTypeManager.Instance.ComTypeLibraries)
                 {
-                    foreach (ComTypeInfo comTypeInfo in comTypeLibrary.ComTypeInfos)
+                    foreach (var comTypeInfo in comTypeLibrary.ComTypeInfos)
                     {
                         if (comTypeInfo.IsHidden) continue;
 
-                        foreach (ComVariableInfo comVariableInfo in comTypeInfo.Variables)
+                        foreach (var comVariableInfo in comTypeInfo.Variables)
                         {
                             list.Add(new ComVariableInfoTreeNode(comVariableInfo));
                         }
@@ -370,7 +370,7 @@ public class ComTypeTreeView : TreeView
                 filterednodes = list.OfType<ComVariableInfoTreeNode>().Where(x => iFilter.Equals(x.ComVariableInfo.ConstantValue)).ToArray();
             }
 
-            foreach (ComTypeTreeNode comTypeTreeNode in filterednodes)
+            foreach (var comTypeTreeNode in filterednodes)
             {
                 comTypeTreeNode.Text = comTypeTreeNode.FullText;
                 SetImageIndex(comTypeTreeNode);
@@ -386,7 +386,7 @@ public class ComTypeTreeView : TreeView
 
     private void SetImageIndex(ComTypeTreeNode[] comTypeTreeNodes)
     {
-        foreach (ComTypeTreeNode comTypeTreeNode in comTypeTreeNodes)
+        foreach (var comTypeTreeNode in comTypeTreeNodes)
         {
             SetImageIndex(comTypeTreeNode);
         }
@@ -394,11 +394,11 @@ public class ComTypeTreeView : TreeView
 
     private void SetImageIndex(ComTypeTreeNode comTypeTreeNode)
     {
-        ComTypeLibraryTreeNode comTypeLibraryTreeNode = comTypeTreeNode as ComTypeLibraryTreeNode;
-        ComTypeInfoTreeNode comTypeInfoTreeNode = comTypeTreeNode as ComTypeInfoTreeNode;
-        ComFunctionInfoTreeNode comFunctionInfoTreeNode = comTypeTreeNode as ComFunctionInfoTreeNode;
-        ComPropertyInfoTreeNode comPropertyInfoTreeNode = comTypeTreeNode as ComPropertyInfoTreeNode;
-        ComVariableInfoTreeNode comVariableInfoTreeNode = comTypeTreeNode as ComVariableInfoTreeNode;
+        var comTypeLibraryTreeNode = comTypeTreeNode as ComTypeLibraryTreeNode;
+        var comTypeInfoTreeNode = comTypeTreeNode as ComTypeInfoTreeNode;
+        var comFunctionInfoTreeNode = comTypeTreeNode as ComFunctionInfoTreeNode;
+        var comPropertyInfoTreeNode = comTypeTreeNode as ComPropertyInfoTreeNode;
+        var comVariableInfoTreeNode = comTypeTreeNode as ComVariableInfoTreeNode;
 
         if (comTypeLibraryTreeNode != null)
         {
@@ -406,7 +406,7 @@ public class ComTypeTreeView : TreeView
         }
         else if (comTypeInfoTreeNode != null)
         {
-            ComTypeInfo comTypeInfo = comTypeInfoTreeNode.ComTypeInfo;
+            var comTypeInfo = comTypeInfoTreeNode.ComTypeInfo;
 
             if (comTypeInfo.IsCoClass)
             {
@@ -452,10 +452,7 @@ public class ComTypeTreeView : TreeView
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public string Filter
     {
-        get
-        {
-            return _filter;
-        }
+        get => _filter;
         set
         {
             _filter = value;
@@ -468,12 +465,12 @@ public class ComTypeTreeView : TreeView
         }
     }
 
-    public bool IsFiltered { get { return String.IsNullOrWhiteSpace(_filter) == false; } }
+    public bool IsFiltered => string.IsNullOrWhiteSpace(_filter) == false;
 }
 
 public class ComTypeTreeNode : TreeNode
 {
-    private string _fullText = String.Empty;
+    private string _fullText = string.Empty;
 
     public ComTypeTreeNode()
         : base()
@@ -482,8 +479,7 @@ public class ComTypeTreeNode : TreeNode
 
     public string FullText
     {
-        get { return _fullText; }
-        set { _fullText = value; }
+        get => _fullText; set => _fullText = value;
     }
 }
 
@@ -499,7 +495,7 @@ public class ComTypeLibraryTreeNode : ComTypeTreeNode
         FullText = _comTypeLibrary.Name;
     }
 
-    public ComTypeLibrary ComTypeLibrary { get { return _comTypeLibrary; } }
+    public ComTypeLibrary ComTypeLibrary => _comTypeLibrary;
 }
 
 public class ComTypeInfoTreeNode : ComTypeTreeNode
@@ -514,7 +510,7 @@ public class ComTypeInfoTreeNode : ComTypeTreeNode
         FullText = _comTypeInfo.FullName;
     }
 
-    public ComTypeInfo ComTypeInfo { get { return _comTypeInfo; } }
+    public ComTypeInfo ComTypeInfo => _comTypeInfo;
 }
 
 public class ComFunctionInfoTreeNode : ComTypeTreeNode
@@ -526,10 +522,10 @@ public class ComFunctionInfoTreeNode : ComTypeTreeNode
     {
         _comFunctionInfo = comFunctionInfo;
         Text = _comFunctionInfo.Name;
-        FullText = String.Format("{0}.{1}", _comFunctionInfo.ComTypeInfo.FullName, _comFunctionInfo.Name);
+        FullText = string.Format("{0}.{1}", _comFunctionInfo.ComTypeInfo.FullName, _comFunctionInfo.Name);
     }
 
-    public ComFunctionInfo ComFunctionInfo { get { return _comFunctionInfo; } }
+    public ComFunctionInfo ComFunctionInfo => _comFunctionInfo;
 }
 
 public class ComPropertyInfoTreeNode : ComTypeTreeNode
@@ -541,10 +537,10 @@ public class ComPropertyInfoTreeNode : ComTypeTreeNode
     {
         _comPropertyInfo = comFunctionInfo;
         Text = _comPropertyInfo.Name;
-        FullText = String.Format("{0}.{1}", _comPropertyInfo.ComTypeInfo.FullName, _comPropertyInfo.Name);
+        FullText = string.Format("{0}.{1}", _comPropertyInfo.ComTypeInfo.FullName, _comPropertyInfo.Name);
     }
 
-    public ComPropertyInfo ComPropertyInfo { get { return _comPropertyInfo; } }
+    public ComPropertyInfo ComPropertyInfo => _comPropertyInfo;
 }
 
 public class ComVariableInfoTreeNode : ComTypeTreeNode
@@ -556,8 +552,8 @@ public class ComVariableInfoTreeNode : ComTypeTreeNode
     {
         _comVariableInfo = comVariableInfo;
         Text = _comVariableInfo.Name;
-        FullText = String.Format("{0}.{1}", _comVariableInfo.ComTypeInfo.FullName, _comVariableInfo.Name);
+        FullText = string.Format("{0}.{1}", _comVariableInfo.ComTypeInfo.FullName, _comVariableInfo.Name);
     }
 
-    public ComVariableInfo ComVariableInfo { get { return _comVariableInfo; } }
+    public ComVariableInfo ComVariableInfo => _comVariableInfo;
 }

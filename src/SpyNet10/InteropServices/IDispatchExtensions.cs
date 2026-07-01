@@ -5,26 +5,23 @@ namespace SpyNet10.InteropServices;
 
 public static class IDispatchExtensions
 {
-    public static ITypeInfo GetTypeInfo(this IDispatch dispatch)
-    {
-        return dispatch.GetTypeInfo(0, NativeMethods.LOCALE_SYSTEM_DEFAULT);
-    }
+    public static ITypeInfo GetTypeInfo(this IDispatch dispatch) => dispatch.GetTypeInfo(0, NativeMethods.LOCALE_SYSTEM_DEFAULT);
 
     public static int GetIdOfName(this IDispatch dispatch, string name, out int dispid)
     {
         var rgDispId = new int[] { 0 };
-        string[] rgsNames = { name };
+        string[] rgsNames = [name];
         var riid = new Guid(NativeMethods.IID_NULL);
-        int hr = dispatch.GetIDsOfNames(ref riid, rgsNames, rgsNames.Length, NativeMethods.LOCALE_SYSTEM_DEFAULT, rgDispId);
+        var hr = dispatch.GetIDsOfNames(ref riid, rgsNames, rgsNames.Length, NativeMethods.LOCALE_SYSTEM_DEFAULT, rgDispId);
         dispid = rgDispId[0];
         return hr;
     }
 
     public static int InvokePropertyGet(this IDispatch dispatch, string name, out object value)
     {
-        int hr = NativeMethods.S_OK;
+        var hr = NativeMethods.S_OK;
         value = null;
-        int dispid = 0;
+        var dispid = 0;
 
         if (MarshalEx.Succeeded(dispatch.GetIdOfName(name, out dispid)))
         {
@@ -36,7 +33,7 @@ public static class IDispatchExtensions
 
     public static int InvokePropertyGet(this IDispatch dispatch, int dispid, out object value)
     {
-        int hr = NativeMethods.S_OK;
+        var hr = NativeMethods.S_OK;
         value = null;
 
         var guid = Guid.Empty;
@@ -46,7 +43,7 @@ public static class IDispatchExtensions
         var pExcepInfo = default(EXCEPINFO);
         uint pArgErr = 0;
 
-        Variant variant = default(Variant);
+        var variant = default(Variant);
 
         try
         {
@@ -70,17 +67,20 @@ public static class IDispatchExtensions
                         case VarEnum.VT_PTR:
                             GlobalExceptionHandler.HandleException();
                             break;
+
                         case VarEnum.VT_UNKNOWN:
                         case VarEnum.VT_DISPATCH:
                             if (variant.ptr1.Equals(IntPtr.Zero) == false)
                             {
                                 value = new ComPtr(variant.ptr1);
-                                int count = Marshal.Release(variant.ptr1);
+                                var count = Marshal.Release(variant.ptr1);
                             }
                             break;
+
                         case VarEnum.VT_USERDEFINED:
                             value = variant.ToObject();
                             break;
+
                         default:
                             value = variant.ToObject();
                             break;
@@ -106,8 +106,8 @@ public static class IDispatchExtensions
 
     public static int InvokePropertySet(this IDispatch dispatch, string name, object value)
     {
-        int hr = NativeMethods.S_OK;
-        int dispid = 0;
+        var hr = NativeMethods.S_OK;
+        var dispid = 0;
 
         if (MarshalEx.Succeeded(dispatch.GetIdOfName(name, out dispid)))
         {
@@ -119,7 +119,7 @@ public static class IDispatchExtensions
 
     public static int InvokePropertySet(this IDispatch dispatch, int dispid, object value)
     {
-        int hr = NativeMethods.S_OK;
+        var hr = NativeMethods.S_OK;
 
         var guid = Guid.Empty;
         var lcid = NativeMethods.LOCALE_SYSTEM_DEFAULT;
@@ -127,9 +127,9 @@ public static class IDispatchExtensions
         var pExcepInfo = default(EXCEPINFO);
         uint pArgErr = 0;
 
-        Variant pVarResult = default(Variant);
-        VariantArgPtr va = new VariantArgPtr(1);
-        
+        var pVarResult = default(Variant);
+        var va = new VariantArgPtr(1);
+
         var dp = new DISPPARAMS()
         {
             cArgs = va.Count,
@@ -142,7 +142,7 @@ public static class IDispatchExtensions
 
         if (value is VariantWrapper)
         {
-            Variant variant = new Variant((VariantWrapper)value);
+            var variant = new Variant((VariantWrapper)value);
             Marshal.StructureToPtr(variant, va[0], false);
         }
         else
@@ -178,8 +178,8 @@ public static class IDispatchExtensions
 
     public static int InvokeMethod(this IDispatch dispatch, string name, object[] args, out object returnValue)
     {
-        int hr = NativeMethods.S_OK;
-        int id = 0;
+        var hr = NativeMethods.S_OK;
+        var id = 0;
         returnValue = null;
 
         if (MarshalEx.Succeeded(hr = dispatch.GetIdOfName(name, out id)))
@@ -192,9 +192,9 @@ public static class IDispatchExtensions
 
     public static int InvokeMethod(this IDispatch dispatch, int dispId, object[] args, out object returnValue)
     {
-        int hr = NativeMethods.S_OK;
+        var hr = NativeMethods.S_OK;
         var riid = new Guid(NativeMethods.IID_NULL);
-        VariantArgPtr va = new VariantArgPtr(args.Length);
+        var va = new VariantArgPtr(args.Length);
         returnValue = null;
 
         var dp = new DISPPARAMS()
@@ -207,13 +207,13 @@ public static class IDispatchExtensions
 
         Array.Reverse(args);
 
-        for (int i = 0; i < args.Length; i++)
+        for (var i = 0; i < args.Length; i++)
         {
             var arg = args[i];
 
             if (arg is VariantWrapper)
             {
-                Variant variant = new Variant((VariantWrapper)arg);
+                var variant = new Variant((VariantWrapper)arg);
                 Marshal.StructureToPtr(variant, va[i], false);
             }
             else
@@ -224,7 +224,7 @@ public static class IDispatchExtensions
 
         try
         {
-            Variant pVarResult = default(Variant);
+            var pVarResult = default(Variant);
             var pExcepInfo = default(EXCEPINFO);
             uint pArgErr = 0;
 
@@ -248,7 +248,7 @@ public static class IDispatchExtensions
 
                     if (arg is VariantWrapper)
                     {
-                        Variant variant = (Variant)Marshal.PtrToStructure(va[i], typeof(Variant));
+                        var variant = (Variant)Marshal.PtrToStructure(va[i], typeof(Variant));
 
                         try
                         {
@@ -262,6 +262,7 @@ public static class IDispatchExtensions
                                         Marshal.Release(variant.ptr1);
                                     }
                                     break;
+
                                 default:
                                     args[i] = variant.ToObject();
                                     break;
@@ -289,8 +290,10 @@ public static class IDispatchExtensions
                             Marshal.Release(pVarResult.ptr1);
                         }
                         break;
+
                     case VarEnum.VT_EMPTY:
                         break;
+
                     default:
                         returnValue = pVarResult.ToObject();
                         break;

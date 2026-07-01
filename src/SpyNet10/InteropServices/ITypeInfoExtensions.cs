@@ -7,7 +7,7 @@ public static class ITypeInfoExtensions
     public static Guid GetGuid(this ITypeInfo typeInfo)
     {
         TYPEATTR attr;
-        IntPtr p = IntPtr.Zero;
+        var p = IntPtr.Zero;
 
         typeInfo.GetTypeAttr(out p);
 
@@ -25,7 +25,7 @@ public static class ITypeInfoExtensions
     public static Version GetVersion(this ITypeInfo typeInfo)
     {
         TYPEATTR attr;
-        IntPtr p = IntPtr.Zero;
+        var p = IntPtr.Zero;
 
         typeInfo.GetTypeAttr(out p);
 

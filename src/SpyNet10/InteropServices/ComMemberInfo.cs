@@ -1,54 +1,48 @@
+using SpyNet10.Extensions;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
-using SpyNet10.Extensions;
 
 namespace SpyNet10.InteropServices;
 
 public abstract class ComMemberInfo
 {
     internal ComTypeInfo _comTypeInfo;
-    internal string _name = String.Empty;
-    internal string _description = String.Empty;
+    internal string _name = string.Empty;
+    internal string _description = string.Empty;
     internal int _helpContext = 0;
-    internal string _helpFile = String.Empty;
+    internal string _helpFile = string.Empty;
 
-    public ComMemberInfo(ComTypeInfo comTypeInfo)
-    {
-        _comTypeInfo = comTypeInfo;
-    }
+    public ComMemberInfo(ComTypeInfo comTypeInfo) => _comTypeInfo = comTypeInfo;
 
-    public string Name { get { return _name; } }
-    public string Description { get { return _description; } }
-    public ComTypeInfo ComTypeInfo { get { return _comTypeInfo; } }
+    public string Name => _name;
+    public string Description => _description;
+    public ComTypeInfo ComTypeInfo => _comTypeInfo;
 
-    public override string ToString()
-    {
-        return _name;
-    }
+    public override string ToString() => _name;
 }
 
 public class ComFunctionInfo : ComMemberInfo
 {
     private IntPtr _pFuncDesc = IntPtr.Zero;
     private FUNCDESC _funcDesc;
-    private List<ComParameterInfo> _parameters = new List<ComParameterInfo>();
+    private List<ComParameterInfo> _parameters = new();
     private ComParameterInfo _returnParameter;
 
     public ComFunctionInfo(ComTypeInfo parent, IntPtr pFuncDesc)
         : base(parent)
     {
         _pFuncDesc = pFuncDesc;
-        _funcDesc = pFuncDesc.ToStructure <FUNCDESC>();
+        _funcDesc = pFuncDesc.ToStructure<FUNCDESC>();
         _comTypeInfo.GetITypeInfo().GetDocumentation(_funcDesc.memid, out _name, out _description, out _helpContext, out _helpFile);
 
-        if (_description == null) _description = String.Empty;
-        if (_helpFile == null) _helpFile = String.Empty;
+        if (_description == null) _description = string.Empty;
+        if (_helpFile == null) _helpFile = string.Empty;
 
         LoadParameters();
     }
 
-    public ComParameterInfo ReturnParameter { get { return _returnParameter; } }
+    public ComParameterInfo ReturnParameter => _returnParameter;
 
     public ComParameterInfo[] Parameters
     {
@@ -63,42 +57,42 @@ public class ComFunctionInfo : ComMemberInfo
         }
     }
 
-    public FUNCFLAGS FunctionFlags { get { return (FUNCFLAGS)_funcDesc.wFuncFlags; } }
+    public FUNCFLAGS FunctionFlags => (FUNCFLAGS)_funcDesc.wFuncFlags;
 
-    public int DispId { get { return _funcDesc.memid; } }
-    public INVOKEKIND InvokeKind { get { return _funcDesc.invkind; } }
+    public int DispId => _funcDesc.memid;
+    public INVOKEKIND InvokeKind => _funcDesc.invkind;
 
-    public bool IsBindable { get { return FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FBINDABLE); } }
-    public bool IsDefaultBind { get { return FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FDEFAULTBIND); } }
-    public bool IsDefaultCollectionElemement { get { return FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FDEFAULTCOLLELEM); } }
-    public bool IsDisplayBindable { get { return FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FDISPLAYBIND); } }
-    public bool IsHidden { get { return FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FHIDDEN); } }
-    public bool IsImmediateBindable { get { return FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FIMMEDIATEBIND); } }
-    public bool IsNonBrowsable { get { return FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FNONBROWSABLE); } }
-    public bool IsReplaceable { get { return FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FREPLACEABLE); } }
-    public bool IsRequestEdit { get { return FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FREQUESTEDIT); } }
-    public bool IsRestricted { get { return FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FRESTRICTED); } }
-    public bool IsSource { get { return FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FSOURCE); } }
-    public bool IsUiDefault { get { return FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FUIDEFAULT); } }
-    public bool SupportsGetLastError { get { return FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FUSESGETLASTERROR); } }
+    public bool IsBindable => FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FBINDABLE);
+    public bool IsDefaultBind => FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FDEFAULTBIND);
+    public bool IsDefaultCollectionElemement => FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FDEFAULTCOLLELEM);
+    public bool IsDisplayBindable => FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FDISPLAYBIND);
+    public bool IsHidden => FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FHIDDEN);
+    public bool IsImmediateBindable => FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FIMMEDIATEBIND);
+    public bool IsNonBrowsable => FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FNONBROWSABLE);
+    public bool IsReplaceable => FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FREPLACEABLE);
+    public bool IsRequestEdit => FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FREQUESTEDIT);
+    public bool IsRestricted => FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FRESTRICTED);
+    public bool IsSource => FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FSOURCE);
+    public bool IsUiDefault => FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FUIDEFAULT);
+    public bool SupportsGetLastError => FunctionFlags.IsSet(System.Runtime.InteropServices.ComTypes.FUNCFLAGS.FUNCFLAG_FUSESGETLASTERROR);
 
     private void LoadParameters()
     {
         _parameters = new List<ComParameterInfo>();
 
-        string[] rgBstrNames = new string[_funcDesc.cParams + 1];
-        int pcNames = 0;
+        var rgBstrNames = new string[_funcDesc.cParams + 1];
+        var pcNames = 0;
         _comTypeInfo.GetITypeInfo().GetNames(_funcDesc.memid, rgBstrNames, rgBstrNames.Length, out pcNames);
 
-        IntPtr pElemDesc = _funcDesc.lprgelemdescParam;
+        var pElemDesc = _funcDesc.lprgelemdescParam;
 
         _returnParameter = new ComParameterInfo(this, rgBstrNames[0], _funcDesc.elemdescFunc);
 
         if (_funcDesc.cParams > 0)
         {
-            for (int cParams = 0; cParams < _funcDesc.cParams; cParams++)
+            for (var cParams = 0; cParams < _funcDesc.cParams; cParams++)
             {
-                ELEMDESC elemDesc = (ELEMDESC)Marshal.PtrToStructure(pElemDesc, typeof(ELEMDESC));
+                var elemDesc = (ELEMDESC)Marshal.PtrToStructure(pElemDesc, typeof(ELEMDESC));
                 _parameters.Add(new ComParameterInfo(this, rgBstrNames[cParams + 1], elemDesc));
                 pElemDesc = new IntPtr(pElemDesc.ToInt64() + Marshal.SizeOf(typeof(ELEMDESC)));
             }
@@ -111,18 +105,15 @@ public class ComFunctionInfo : ComMemberInfo
         //m_parameters = list.ToArray();
     }
 
-    public FUNCDESC FuncDesc { get { return this._funcDesc; } }
+    public FUNCDESC FuncDesc => this._funcDesc;
 
-    public override string ToString()
-    {
-        return Name;
-    }
+    public override string ToString() => Name;
 
     public string ToString(bool includeParameters)
     {
         if (!includeParameters) return ToString();
 
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         sb.Append(_name);
 
@@ -130,7 +121,7 @@ public class ComFunctionInfo : ComMemberInfo
         {
             sb.Append('(');
 
-            foreach (ComParameterInfo parameter in _parameters)
+            foreach (var parameter in _parameters)
             {
                 sb.Append(parameter.Name);
                 sb.Append(", ");
@@ -151,7 +142,7 @@ public class ComFunctionInfo : ComMemberInfo
 
 public class ComPropertyInfo : ComMemberInfo
 {
-    private List<ComFunctionInfo> _functions = new List<ComFunctionInfo>();
+    private List<ComFunctionInfo> _functions = new();
 
     public ComPropertyInfo(ComTypeInfo parent, ComFunctionInfo[] functions)
         : base(parent)
@@ -162,52 +153,25 @@ public class ComPropertyInfo : ComMemberInfo
         _description = functions[0].Description;
     }
 
-    public ComFunctionInfo GetFunction
-    {
-        get { return _functions.Where(x => x.InvokeKind == System.Runtime.InteropServices.ComTypes.INVOKEKIND.INVOKE_PROPERTYGET).FirstOrDefault(); }
-    }
+    public ComFunctionInfo GetFunction => _functions.Where(x => x.InvokeKind == System.Runtime.InteropServices.ComTypes.INVOKEKIND.INVOKE_PROPERTYGET).FirstOrDefault();
 
-    public ComFunctionInfo SetFunction
-    {
-        get
-        {
-            return _functions.Where(
+    public ComFunctionInfo SetFunction => _functions.Where(
                 x => x.InvokeKind != System.Runtime.InteropServices.ComTypes.INVOKEKIND.INVOKE_FUNC).Where(
                 x => x.InvokeKind != System.Runtime.InteropServices.ComTypes.INVOKEKIND.INVOKE_PROPERTYGET)
                 .FirstOrDefault();
-        }
-    }
 
-    public bool IsReadOnly
-    {
-        get
-        {
-            return ((GetFunction != null) && (SetFunction == null));
-        }
-    }
+    public bool IsReadOnly => ((GetFunction != null) && (SetFunction == null));
 
-    public bool IsWriteOnly
-    {
-        get
-        {
-            return ((SetFunction != null) && (GetFunction == null));
-        }
-    }
+    public bool IsWriteOnly => ((SetFunction != null) && (GetFunction == null));
 
-    public bool IsReadWrite
-    {
-        get
-        {
-            return ((SetFunction != null) && (GetFunction != null));
-        }
-    }
+    public bool IsReadWrite => ((SetFunction != null) && (GetFunction != null));
 
     public bool GetFunctionHasParameters
     {
         get
         {
-            ComFunctionInfo getComFunctionInfo = GetFunction;
-            
+            var getComFunctionInfo = GetFunction;
+
             if (getComFunctionInfo != null)
             {
                 return getComFunctionInfo.Parameters.Length > 0;
@@ -229,28 +193,28 @@ public class ComVariableInfo : ComMemberInfo
         _varDesc = varDesc;
         _comTypeInfo.GetITypeInfo().GetDocumentation(_varDesc.memid, out _name, out _description, out _helpContext, out _helpFile);
         _constantValue = constantValue;
-        if (_description == null) _description = String.Empty;
-        if (_helpFile == null) _helpFile = String.Empty;
+        if (_description == null) _description = string.Empty;
+        if (_helpFile == null) _helpFile = string.Empty;
     }
 
-    public object ConstantValue { get { return _constantValue; } }
-    public VARDESC VariableDescription { get { return _varDesc; } }
-    public VARKIND VariableKind { get { return _varDesc.varkind; } }
-    public VARFLAGS VariableFlags { get { return (VARFLAGS)_varDesc.wVarFlags; } }
+    public object ConstantValue => _constantValue;
+    public VARDESC VariableDescription => _varDesc;
+    public VARKIND VariableKind => _varDesc.varkind;
+    public VARFLAGS VariableFlags => (VARFLAGS)_varDesc.wVarFlags;
 
-    public bool IsBindable { get { return VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FBINDABLE); } }
-    public bool IsDefaultBind { get { return VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FDEFAULTBIND); } }
-    public bool IsDefaultCollectionElemement { get { return VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FDEFAULTCOLLELEM); } }
-    public bool IsDisplayBindable { get { return VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FDISPLAYBIND); } }
-    public bool IsHidden { get { return VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FHIDDEN); } }
-    public bool IsImmediateBindable { get { return VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FIMMEDIATEBIND); } }
-    public bool IsNonBrowsable { get { return VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FNONBROWSABLE); } }
-    public bool IsReadOnly { get { return VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FREADONLY); } }
-    public bool IsReplaceable { get { return VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FREPLACEABLE); } }
-    public bool IsRequestEdit { get { return VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FREQUESTEDIT); } }
-    public bool IsRestricted { get { return VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FRESTRICTED); } }
-    public bool IsSource { get { return VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FSOURCE); } }
-    public bool IsUiDefault { get { return VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FUIDEFAULT); } }
+    public bool IsBindable => VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FBINDABLE);
+    public bool IsDefaultBind => VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FDEFAULTBIND);
+    public bool IsDefaultCollectionElemement => VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FDEFAULTCOLLELEM);
+    public bool IsDisplayBindable => VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FDISPLAYBIND);
+    public bool IsHidden => VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FHIDDEN);
+    public bool IsImmediateBindable => VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FIMMEDIATEBIND);
+    public bool IsNonBrowsable => VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FNONBROWSABLE);
+    public bool IsReadOnly => VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FREADONLY);
+    public bool IsReplaceable => VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FREPLACEABLE);
+    public bool IsRequestEdit => VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FREQUESTEDIT);
+    public bool IsRestricted => VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FRESTRICTED);
+    public bool IsSource => VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FSOURCE);
+    public bool IsUiDefault => VariableFlags.IsSet(System.Runtime.InteropServices.ComTypes.VARFLAGS.VARFLAG_FUIDEFAULT);
 }
 
 public class ComParameterInfo
@@ -266,21 +230,18 @@ public class ComParameterInfo
         _elemDesc = elemDesc;
     }
 
-    public ComFunctionInfo ComFunctionInfo { get { return _comFunctionInfo; } }
-    public string Name { get { return _name; } }
-    public ELEMDESC ELEMDESC { get { return _elemDesc; } }
-    public VarEnum VariantType { get { return (VarEnum)_elemDesc.tdesc.vt; } }
+    public ComFunctionInfo ComFunctionInfo => _comFunctionInfo;
+    public string Name => _name;
+    public ELEMDESC ELEMDESC => _elemDesc;
+    public VarEnum VariantType => (VarEnum)_elemDesc.tdesc.vt;
 
-    public bool IsIn { get { return _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FIN); } }
-    public bool IsOut { get { return _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FOUT); } }
-    public bool IsLcid { get { return _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FLCID); } }
-    public bool IsRetval { get { return _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FRETVAL); } }
-    public bool IsOptional { get { return _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FOPT); } }
-    public bool HasDefault { get { return _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FHASDEFAULT); } }
-    public bool HasCustomData { get { return _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FHASCUSTDATA); } }
+    public bool IsIn => _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FIN);
+    public bool IsOut => _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FOUT);
+    public bool IsLcid => _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FLCID);
+    public bool IsRetval => _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FRETVAL);
+    public bool IsOptional => _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FOPT);
+    public bool HasDefault => _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FHASDEFAULT);
+    public bool HasCustomData => _elemDesc.desc.paramdesc.wParamFlags.IsSet(System.Runtime.InteropServices.ComTypes.PARAMFLAG.PARAMFLAG_FHASCUSTDATA);
 
-    public override string ToString()
-    {
-        return _name;
-    }
+    public override string ToString() => _name;
 }

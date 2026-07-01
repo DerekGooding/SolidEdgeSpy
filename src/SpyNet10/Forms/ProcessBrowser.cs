@@ -7,20 +7,11 @@ public partial class ProcessBrowser : UserControl
 {
     private int _processId = 0;
 
-    public ProcessBrowser()
-    {
-        InitializeComponent();
-    }
+    public ProcessBrowser() => InitializeComponent();
 
-    private void ProcessBrowser_Load(object sender, EventArgs e)
-    {
-        RefreshProcessInformation();
-    }
+    private void ProcessBrowser_Load(object sender, EventArgs e) => RefreshProcessInformation();
 
-    private void buttonRefresh_Click(object sender, EventArgs e)
-    {
-        RefreshProcessInformation();
-    }
+    private void buttonRefresh_Click(object sender, EventArgs e) => RefreshProcessInformation();
 
     public void RefreshProcessInformation()
     {
@@ -31,7 +22,7 @@ public partial class ProcessBrowser : UserControl
         try
         {
             processModuleListView.Items.Clear();
-            Process process = Process.GetProcessById(_processId);
+            var process = Process.GetProcessById(_processId);
             processModuleListView.SetItems(process.Modules);
         }
         catch
@@ -44,7 +35,7 @@ public partial class ProcessBrowser : UserControl
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public int ProcessId
     {
-        get { return _processId; }
+        get => _processId;
         set
         {
             _processId = value;
@@ -65,17 +56,17 @@ public partial class ProcessBrowser : UserControl
         {
             if (processModuleListView.SelectedItems.Count == 1)
             {
-                ListViewItem listViewItem = processModuleListView.SelectedItems[0];
-                ProcessModule processModule = listViewItem.Tag as ProcessModule;
+                var listViewItem = processModuleListView.SelectedItems[0];
+                var processModule = listViewItem.Tag as ProcessModule;
                 if (processModule != null)
                 {
-                    NativeMethods.SHELLEXECUTEINFO info = new NativeMethods.SHELLEXECUTEINFO();
+                    var info = new NativeMethods.SHELLEXECUTEINFO();
                     info.cbSize = System.Runtime.InteropServices.Marshal.SizeOf(info);
                     info.lpVerb = "properties";
                     info.lpFile = processModule.FileName;
                     info.nShow = NativeMethods.SW_SHOW;
                     info.fMask = NativeMethods.SEE_MASK_INVOKEIDLIST;
-                    NativeMethods.ShellExecuteEx(ref info);  
+                    NativeMethods.ShellExecuteEx(ref info);
                 }
             }
         }

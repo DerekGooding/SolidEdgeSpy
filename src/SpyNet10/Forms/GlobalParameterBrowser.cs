@@ -1,17 +1,14 @@
-﻿using System.ComponentModel;
+﻿using SpyNet10.InteropServices;
+using System.ComponentModel;
 using System.Data;
-using System.Text;
 using System.Runtime.InteropServices;
-using SpyNet10.InteropServices;
+using System.Text;
 
 namespace SpyNet10.Forms;
 
 public partial class GlobalParameterBrowser : UserControl
 {
-    public GlobalParameterBrowser()
-    {
-        InitializeComponent();
-    }
+    public GlobalParameterBrowser() => InitializeComponent();
 
     private void buttonRefresh_Click(object sender, EventArgs e)
     {
@@ -22,10 +19,7 @@ public partial class GlobalParameterBrowser : UserControl
         Cursor.Current = Cursors.Default;
     }
 
-    private void textBoxSearch_TextAccepted(object sender, EventArgs e)
-    {
-        buttonRefresh_Click(sender, e);
-    }
+    private void textBoxSearch_TextAccepted(object sender, EventArgs e) => buttonRefresh_Click(sender, e);
 
     public void RefreshGlobalParameters()
     {
@@ -35,16 +29,15 @@ public partial class GlobalParameterBrowser : UserControl
         {
             SelectedObject = new GlobalParameterInfo(pApplication, this.textBoxSearch.Text);
         }
-
     }
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public object SelectedObject
     {
-        get { return propertyGrid.SelectedObject; }
+        get => propertyGrid.SelectedObject;
         set
         {
-            GlobalParameterInfo globalParameterInfo = propertyGrid.SelectedObject as GlobalParameterInfo;
+            var globalParameterInfo = propertyGrid.SelectedObject as GlobalParameterInfo;
 
             globalParameterInfo?.Dispose();
 
@@ -56,7 +49,7 @@ public partial class GlobalParameterBrowser : UserControl
 public class GlobalParameterInfo : ICustomTypeDescriptor, IDisposable
 {
     private ComPtr _pApplication = IntPtr.Zero;
-    private List<SolidEdgeFramework.ApplicationGlobalConstants> _colorGlobalConstants = new List<SolidEdgeFramework.ApplicationGlobalConstants>();
+    private List<SolidEdgeFramework.ApplicationGlobalConstants> _colorGlobalConstants = new();
     private string _filter;
 
     public GlobalParameterInfo(ComPtr pApplication, string filter)
@@ -71,7 +64,7 @@ public class GlobalParameterInfo : ICustomTypeDescriptor, IDisposable
             var enumValues = type.GetEnumValues();
 
             // Build list of global constants that represent color using the constant name.
-            for (int i = 0; i < enumNames.Length; i++)
+            for (var i = 0; i < enumNames.Length; i++)
             {
                 if (enumNames[i].Contains("Color"))
                 {
@@ -90,33 +83,41 @@ public class GlobalParameterInfo : ICustomTypeDescriptor, IDisposable
 
     #region "TypeDescriptor Implementation"
 
-    public String GetClassName() { return TypeDescriptor.GetClassName(this, true); }
-    public AttributeCollection GetAttributes() { return TypeDescriptor.GetAttributes(this, true); }
-    public String GetComponentName() { return TypeDescriptor.GetComponentName(this, true); }
-    public TypeConverter GetConverter() { return TypeDescriptor.GetConverter(this, true); }
-    public EventDescriptor GetDefaultEvent() { return TypeDescriptor.GetDefaultEvent(this, true); }
-    public PropertyDescriptor GetDefaultProperty() { return TypeDescriptor.GetDefaultProperty(this, true); }
-    public object GetEditor(Type editorBaseType) { return TypeDescriptor.GetEditor(this, editorBaseType, true); }
-    public EventDescriptorCollection GetEvents(Attribute[] attributes) { return TypeDescriptor.GetEvents(this, attributes, true); }
-    public EventDescriptorCollection GetEvents() { return TypeDescriptor.GetEvents(this, true); }
+    public string GetClassName() => TypeDescriptor.GetClassName(this, true);
+
+    public AttributeCollection GetAttributes() => TypeDescriptor.GetAttributes(this, true);
+
+    public string GetComponentName() => TypeDescriptor.GetComponentName(this, true);
+
+    public TypeConverter GetConverter() => TypeDescriptor.GetConverter(this, true);
+
+    public EventDescriptor GetDefaultEvent() => TypeDescriptor.GetDefaultEvent(this, true);
+
+    public PropertyDescriptor GetDefaultProperty() => TypeDescriptor.GetDefaultProperty(this, true);
+
+    public object GetEditor(Type editorBaseType) => TypeDescriptor.GetEditor(this, editorBaseType, true);
+
+    public EventDescriptorCollection GetEvents(Attribute[] attributes) => TypeDescriptor.GetEvents(this, attributes, true);
+
+    public EventDescriptorCollection GetEvents() => TypeDescriptor.GetEvents(this, true);
 
     public PropertyDescriptorCollection GetProperties(Attribute[] attributes)
     {
-        if ((_pApplication == null) || (_pApplication.IsInvalid)) return new PropertyDescriptorCollection(new PropertyDescriptor[] { });
+        if ((_pApplication == null) || (_pApplication.IsInvalid)) return new PropertyDescriptorCollection([]);
 
-        List<GlobalParameterPropertyDescriptor> list = new List<GlobalParameterPropertyDescriptor>();
+        var list = new List<GlobalParameterPropertyDescriptor>();
 
         try
         {
-            ComTypeLibrary comTypeLibrary = ComTypeManager.Instance.ComTypeLibraries.Where(x => x.Name.Equals("SolidEdgeFramework")).FirstOrDefault();
+            var comTypeLibrary = ComTypeManager.Instance.ComTypeLibraries.Where(x => x.Name.Equals("SolidEdgeFramework")).FirstOrDefault();
 
             if (comTypeLibrary != null)
             {
-                ComEnumInfo enumInfo = comTypeLibrary.Enums.Where(x => x.Name.Equals("ApplicationGlobalConstants")).FirstOrDefault();
+                var enumInfo = comTypeLibrary.Enums.Where(x => x.Name.Equals("ApplicationGlobalConstants")).FirstOrDefault();
 
-                foreach (ComVariableInfo variableInfo in enumInfo.Variables)
+                foreach (var variableInfo in enumInfo.Variables)
                 {
-                    if (String.IsNullOrEmpty(_filter) == false)
+                    if (string.IsNullOrEmpty(_filter) == false)
                     {
                         if (variableInfo.Name.IndexOf(_filter, StringComparison.OrdinalIgnoreCase) == -1)
                         {
@@ -124,10 +125,10 @@ public class GlobalParameterInfo : ICustomTypeDescriptor, IDisposable
                         }
                     }
 
-                    SolidEdgeFramework.ApplicationGlobalConstants globalConst = (SolidEdgeFramework.ApplicationGlobalConstants)variableInfo.ConstantValue;
+                    var globalConst = (SolidEdgeFramework.ApplicationGlobalConstants)variableInfo.ConstantValue;
 
                     // There is a known bug where seApplicationGlobalOpenAsReadOnly3DFile causes SE to display the read-only icon on
-                    // files after GetGlobalParameter() is called. 
+                    // files after GetGlobalParameter() is called.
                     if (globalConst.Equals(SolidEdgeFramework.ApplicationGlobalConstants.seApplicationGlobalOpenAsReadOnly3DFile))
                     {
                         continue;
@@ -135,21 +136,21 @@ public class GlobalParameterInfo : ICustomTypeDescriptor, IDisposable
 
                     try
                     {
-                        object[] args = new object[] { globalConst, new VariantWrapper(null) };
+                        object[] args = [globalConst, new VariantWrapper(null)];
                         object returnValue = null;
 
                         if (MarshalEx.Succeeded(_pApplication.TryInvokeMethod("GetGlobalParameter", args, out returnValue)))
                         {
                             if (args[1] != null)
                             {
-                                Type propertyType = args[1].GetType();
+                                var propertyType = args[1].GetType();
 
-                                string name = variableInfo.Name.Replace("seApplicationGlobal", string.Empty);
-                                StringBuilder description = new StringBuilder();
+                                var name = variableInfo.Name.Replace("seApplicationGlobal", string.Empty);
+                                var description = new StringBuilder();
                                 description.AppendLine(variableInfo.Description);
-                                description.AppendLine(String.Format("Application.GetGlobalParameter({0}.{1}, out value)", enumInfo.FullName, variableInfo.Name));
+                                description.AppendLine(string.Format("Application.GetGlobalParameter({0}.{1}, out value)", enumInfo.FullName, variableInfo.Name));
 
-                                GlobalParameterProperty property = new GlobalParameterProperty(name, description.ToString(), args[1], propertyType, true);
+                                var property = new GlobalParameterProperty(name, description.ToString(), args[1], propertyType, true);
 
                                 list.Add(new GlobalParameterPropertyDescriptor(ref property, attributes));
 
@@ -161,12 +162,12 @@ public class GlobalParameterInfo : ICustomTypeDescriptor, IDisposable
 
                                         if (args[1] is int)
                                         {
-                                            byte[] rgb = BitConverter.GetBytes((int)args[1]);
+                                            var rgb = BitConverter.GetBytes((int)args[1]);
                                             color = Color.FromArgb(255, rgb[0], rgb[1], rgb[2]);
                                         }
                                         else if (args[1] is uint)
                                         {
-                                            byte[] rgb = BitConverter.GetBytes((uint)args[1]);
+                                            var rgb = BitConverter.GetBytes((uint)args[1]);
                                             color = Color.FromArgb(255, rgb[0], rgb[1], rgb[2]);
                                         }
                                         else
@@ -183,7 +184,7 @@ public class GlobalParameterInfo : ICustomTypeDescriptor, IDisposable
                                             description.AppendLine("byte[] rgb = BitConverter.GetBytes((int)value)");
                                             description.AppendLine("Color color = Color.FromArgb(255, rgb[0], rgb[1], rgb[2]");
 
-                                            property = new GlobalParameterProperty(String.Format("{0} (converted to color)", property.Name), description.ToString(), color, color.GetType(), true);
+                                            property = new GlobalParameterProperty(string.Format("{0} (converted to color)", property.Name), description.ToString(), color, color.GetType(), true);
 
                                             list.Add(new GlobalParameterPropertyDescriptor(ref property, attributes));
                                         }
@@ -210,10 +211,11 @@ public class GlobalParameterInfo : ICustomTypeDescriptor, IDisposable
         return new PropertyDescriptorCollection(list.ToArray());
     }
 
-    public PropertyDescriptorCollection GetProperties() { return TypeDescriptor.GetProperties(this, true); }
-    public object GetPropertyOwner(PropertyDescriptor pd) { return this; }
+    public PropertyDescriptorCollection GetProperties() => TypeDescriptor.GetProperties(this, true);
 
-    #endregion
+    public object GetPropertyOwner(PropertyDescriptor pd) => this;
+
+    #endregion "TypeDescriptor Implementation"
 
     public void Dispose()
     {
@@ -229,7 +231,7 @@ public class GlobalParameterProperty
     private string _name = string.Empty;
     private bool _readonly = false;
     private object _value = null;
-    private string _description = String.Empty;
+    private string _description = string.Empty;
     private Type _type;
 
     public GlobalParameterProperty(string sName, string description, object value, Type type, bool bReadOnly)
@@ -241,85 +243,51 @@ public class GlobalParameterProperty
         _readonly = bReadOnly;
     }
 
-    public Type Type { get { return _type; } }
+    public Type Type => _type;
 
-    public bool ReadOnly { get { return _readonly; } }
+    public bool ReadOnly => _readonly;
 
-    public string Name { get { return _name; } }
-    public string Description { get { return _description; } }
+    public string Name => _name;
+    public string Description => _description;
 
     public object Value
     {
-        get { return _value; }
-        set { _value = value; }
+        get => _value; set => _value = value;
     }
 }
 
 public class GlobalParameterPropertyDescriptor : PropertyDescriptor
 {
-    GlobalParameterProperty _property;
+    private GlobalParameterProperty _property;
 
     public GlobalParameterPropertyDescriptor(ref GlobalParameterProperty property, Attribute[] attrs)
-        : base(property.Name, attrs)
-    {
-        _property = property;
-    }
+        : base(property.Name, attrs) => _property = property;
 
     #region PropertyDescriptor specific
 
-    public override bool CanResetValue(object component)
-    {
-        return false;
-    }
+    public override bool CanResetValue(object component) => false;
 
-    public override Type ComponentType
-    {
-        get { return null; }
-    }
+    public override Type ComponentType => null;
 
-    public override object GetValue(object component)
-    {
-        return _property.Value;
-    }
+    public override object GetValue(object component) => _property.Value;
 
-    public override string Description
-    {
-        get { return _property.Description; }
-    }
+    public override string Description => _property.Description;
 
-    public override string Category
-    {
-        get { return string.Empty; }
-    }
+    public override string Category => string.Empty;
 
-    public override string DisplayName
-    {
-        get { return _property.Name; }
-    }
+    public override string DisplayName => _property.Name;
 
-    public override bool IsReadOnly
-    {
-        get { return _property.ReadOnly; }
-    }
+    public override bool IsReadOnly => _property.ReadOnly;
 
     public override void ResetValue(object component)
     {
     }
 
-    public override bool ShouldSerializeValue(object component)
-    {
-        return false;
-    }
+    public override bool ShouldSerializeValue(object component) => false;
 
-    public override void SetValue(object component, object value)
-    {
-        _property.Value = value;
-    }
+    public override void SetValue(object component, object value) => _property.Value = value;
 
-    public override Type PropertyType
-    {
-        get { return _property.Type; }
-    }
+    public override Type PropertyType => _property.Type;
 
-    #endregion
+    #endregion PropertyDescriptor specific
 }

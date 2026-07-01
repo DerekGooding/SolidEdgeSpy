@@ -2,7 +2,7 @@
 
 namespace SpyNet10.InteropServices;
 
-static class NativeMethods
+internal static class NativeMethods
 {
     public const string IID_NULL = "00000000-0000-0000-0000-000000000000";
     public const string IID_IUnknown = "00000000-0000-0000-C000-000000000046";
@@ -19,15 +19,9 @@ static class NativeMethods
     public const int S_OK = 0;
     public const int S_FALSE = 1;
 
-    public static bool Succeeded(int hr)
-    {
-        return hr >= 0;
-    }
-    
-    public static bool Failed(int hr)
-    {
-        return hr < 0;
-    }
+    public static bool Succeeded(int hr) => hr >= 0;
+
+    public static bool Failed(int hr) => hr < 0;
 
     #region ObjIdl.h
 
@@ -45,14 +39,14 @@ static class NativeMethods
         PENDINGMSG_WAITDEFPROCESS = 2
     }
 
-    #endregion
+    #endregion ObjIdl.h
 
     #region WinError.h
 
     internal const int MK_E_UNAVAILABLE = (int)(0x800401E3 - 0x100000000);
     internal const int CO_E_NOT_SUPPORTED = (int)(0x80004021 - 0x100000000);
 
-    #endregion
+    #endregion WinError.h
 
     [DllImport("ole32.dll", ExactSpelling = true)]
     internal static extern int CoCreateInstance(
@@ -104,5 +98,4 @@ static class NativeMethods
 
     [DllImport("oleaut32.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall)]
     public static extern int VariantClear(IntPtr pvarg);
-
 }

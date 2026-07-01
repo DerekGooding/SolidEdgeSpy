@@ -4,16 +4,12 @@ namespace SpyNet10.Forms;
 
 public partial class SelectEventsDialog : Form
 {
-    private Type[] _eventTypes = new Type[] { };
+    private Type[] _eventTypes = [];
 
-    public SelectEventsDialog()
-    {
-        InitializeComponent();
-    }
+    public SelectEventsDialog() => InitializeComponent();
 
     private void SelectEventsDialog_Load(object sender, EventArgs e)
     {
-
     }
 
     private void buttonOK_Click(object sender, EventArgs e)
@@ -31,13 +27,6 @@ public partial class SelectEventsDialog : Form
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public Type[] EventTypes
     {
-        get
-        {
-            return _eventTypes;
-        }
-        set
-        {
-            _eventTypes = value;
-        }
+        get => _eventTypes; set => _eventTypes = value;
     }
 }

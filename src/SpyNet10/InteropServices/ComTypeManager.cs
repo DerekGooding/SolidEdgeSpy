@@ -4,19 +4,22 @@ using System.Runtime.InteropServices.ComTypes;
 namespace SpyNet10.InteropServices;
 
 public delegate void ComTypeLibrarySelectedHandler(object sender, ComTypeLibrary comTypeLibrary);
+
 public delegate void ComTypeInfoSelectedHandler(object sender, ComTypeInfo comTypeInfo);
 
 public sealed class ComTypeManager
 {
-    private List<ComTypeLibrary> _typeLibraries = new List<ComTypeLibrary>();
+    private List<ComTypeLibrary> _typeLibraries = new();
 
     private static volatile ComTypeManager _instance;
-    private static object _syncRoot = new Object();
+    private static object _syncRoot = new();
 
     public event ComTypeLibrarySelectedHandler ComTypeLibrarySelected;
+
     public event ComTypeInfoSelectedHandler ComTypeInfoSelected;
 
-    private ComTypeManager() { }
+    private ComTypeManager()
+    { }
 
     public static ComTypeManager Instance
     {
@@ -37,10 +40,10 @@ public sealed class ComTypeManager
 
     private ComTypeLibrary GetComTypeLibrary(ITypeLib typeLib)
     {
-        Guid typeLibGuid = typeLib.GetGuid();
-        Version typeLibVersion = typeLib.GetVersion();
+        var typeLibGuid = typeLib.GetGuid();
+        var typeLibVersion = typeLib.GetVersion();
 
-        ComTypeLibrary comTypeLibrary = _typeLibraries.Where(
+        var comTypeLibrary = _typeLibraries.Where(
             x => x.Guid.Equals(typeLibGuid)).Where(
             x => x.Version.Equals(typeLibVersion)
             ).FirstOrDefault();
@@ -49,7 +52,7 @@ public sealed class ComTypeManager
         {
             comTypeLibrary = new ComTypeLibrary(typeLib);
             _typeLibraries.Add(comTypeLibrary);
-            _typeLibraries.Sort(delegate(ComTypeLibrary a, ComTypeLibrary b)
+            _typeLibraries.Sort(delegate (ComTypeLibrary a, ComTypeLibrary b)
             {
                 return a.Name.CompareTo(b.Name);
             });
@@ -64,7 +67,7 @@ public sealed class ComTypeManager
 
         try
         {
-            ITypeLib typeLib = NativeMethods.LoadRegTypeLib(guid, (short)version.Major, (short)version.Minor);
+            var typeLib = NativeMethods.LoadRegTypeLib(guid, (short)version.Major, (short)version.Minor);
             comTypeLibrary = GetComTypeLibrary(typeLib);
         }
         catch
@@ -75,22 +78,19 @@ public sealed class ComTypeManager
         return comTypeLibrary;
     }
 
-    public ComTypeLibrary LoadRegTypeLib(Guid guid, short wVerMajor, short wVerMinor)
-    {
-        return LoadRegTypeLib(guid, new Version(wVerMajor, wVerMinor));
-    }
+    public ComTypeLibrary LoadRegTypeLib(Guid guid, short wVerMajor, short wVerMinor) => LoadRegTypeLib(guid, new Version(wVerMajor, wVerMinor));
 
     public ComTypeInfo FromITypeInfo(ITypeInfo typeInfo)
     {
         if (typeInfo == null) return null;
 
         ITypeLib typeLib = null;
-        int index = 0;
+        var index = 0;
         typeInfo.GetContainingTypeLib(out typeLib, out index);
 
-        ComTypeLibrary comTypeLibrary = GetComTypeLibrary(typeLib);
+        var comTypeLibrary = GetComTypeLibrary(typeLib);
 
-        string typeName = Marshal.GetTypeInfoName(typeInfo);
+        var typeName = Marshal.GetTypeInfoName(typeInfo);
 
         if (comTypeLibrary != null)
         {
@@ -113,11 +113,11 @@ public sealed class ComTypeManager
         if (comTypeInfo == null) return null;
 
         ITypeInfo refTypeInfo = null;
-        VarEnum variantType = (VarEnum)typeDesc.vt;
+        var variantType = (VarEnum)typeDesc.vt;
 
         if (variantType == VarEnum.VT_USERDEFINED)
         {
-            IFixedTypeInfo fixedTypeInfo = (IFixedTypeInfo)comTypeInfo.GetITypeInfo();
+            var fixedTypeInfo = (IFixedTypeInfo)comTypeInfo.GetITypeInfo();
             fixedTypeInfo.GetRefTypeInfo(typeDesc.lpValue, out refTypeInfo);
             return ComTypeManager.Instance.FromITypeInfo(refTypeInfo);
         }
@@ -125,18 +125,18 @@ public sealed class ComTypeManager
         return null;
     }
 
-    public ComTypeLibrary[] ComTypeLibraries { get { return _typeLibraries.ToArray(); } }
+    public ComTypeLibrary[] ComTypeLibraries => _typeLibraries.ToArray();
 
     public bool HasComType(string fullName)
     {
-        string[] tokens = fullName.Split(new char[] { '.' });
+        var tokens = fullName.Split(['.']);
 
         if (tokens.Length == 2)
         {
-            ComTypeLibrary comTypeLibrary = _typeLibraries.Where(x => x.Name.Equals(tokens[0])).FirstOrDefault();
+            var comTypeLibrary = _typeLibraries.Where(x => x.Name.Equals(tokens[0])).FirstOrDefault();
             if (comTypeLibrary != null)
             {
-                ComTypeInfo comTypeInfo = comTypeLibrary.ComTypeInfos.Where(x => x.Name.Equals(tokens[1])).FirstOrDefault();
+                var comTypeInfo = comTypeLibrary.ComTypeInfos.Where(x => x.Name.Equals(tokens[1])).FirstOrDefault();
                 if (comTypeInfo != null)
                 {
                     return true;
@@ -149,9 +149,9 @@ public sealed class ComTypeManager
 
     public void LookupAndSelect(string name)
     {
-        if (String.IsNullOrWhiteSpace(name)) return;
+        if (string.IsNullOrWhiteSpace(name)) return;
 
-        string[] tokens = name.Split(new char[] { '.' });
+        var tokens = name.Split(['.']);
 
         ComTypeLibrary comTypeLibrary = null;
         ComTypeInfo comTypeInfo = null;

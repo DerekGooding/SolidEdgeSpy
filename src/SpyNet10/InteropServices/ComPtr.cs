@@ -5,7 +5,7 @@ namespace SpyNet10.InteropServices;
 
 public class ComPtr : SafeHandle, ICustomTypeDescriptor
 {
-    PropertyDescriptorCollection _propertyDescriptorCollection;
+    private PropertyDescriptorCollection _propertyDescriptorCollection;
 
     public ComPtr()
         : base(IntPtr.Zero, true)
@@ -35,15 +35,9 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
 
     #region Operators
 
-    public static implicit operator IntPtr(ComPtr p)
-    {
-        return p.handle;
-    }
+    public static implicit operator IntPtr(ComPtr p) => p.handle;
 
-    public static implicit operator ComPtr(IntPtr p)
-    {
-        return new ComPtr(p);
-    }
+    public static implicit operator ComPtr(IntPtr p) => new(p);
 
     public static bool operator true(ComPtr p)
     {
@@ -57,14 +51,11 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
         return p.IsInvalid;
     }
 
-    #endregion
+    #endregion Operators
 
     #region Overrides
 
-    public override bool IsInvalid
-    {
-        get { return this.handle == IntPtr.Zero; }
-    }
+    public override bool IsInvalid => this.handle == IntPtr.Zero;
 
     protected override bool ReleaseHandle()
     {
@@ -72,7 +63,7 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
         {
             try
             {
-                int count = Marshal.Release(this.handle);
+                var count = Marshal.Release(this.handle);
             }
             catch
             {
@@ -87,12 +78,9 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
         return true;
     }
 
-    public override string ToString()
-    {
-        return this.handle.ToString();
-    }
+    public override string ToString() => this.handle.ToString();
 
-    #endregion
+    #endregion Overrides
 
     #region Properties
 
@@ -115,26 +103,20 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
         }
     }
 
-    public bool IsDispatch
-    {
-        get
-        {
-            return Is<IDispatch>();
-        }
-    }
+    public bool IsDispatch => Is<IDispatch>();
 
-    #endregion
+    #endregion Properties
 
     #region Methods
 
     public static ComPtr FromRCW(object rcw)
     {
-        IntPtr pUnk = IntPtr.Zero;
+        var pUnk = IntPtr.Zero;
 
         try
         {
             pUnk = Marshal.GetIUnknownForObject(rcw);
-            int count = Marshal.Release(pUnk);
+            var count = Marshal.Release(pUnk);
         }
         catch
         {
@@ -151,13 +133,13 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
         if (this.IsInvalid) return false;
 
         var riid = typeof(T).GUID;
-        IntPtr p = IntPtr.Zero;
+        var p = IntPtr.Zero;
 
         try
         {
             if (MarshalEx.Succeeded(Marshal.QueryInterface(this.handle, ref riid, out p)))
             {
-                int count = Marshal.Release(p);
+                var count = Marshal.Release(p);
                 return true;
             }
         }
@@ -171,13 +153,13 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
     public object TryGetFirstAvailableProperty(string[] propertyNames)
     {
         object value = null;
-        ComTypeInfo comType = TryGetComTypeInfo();
+        var comType = TryGetComTypeInfo();
 
         if (comType != null)
         {
-            foreach (string propertyName in propertyNames)
+            foreach (var propertyName in propertyNames)
             {
-                ComPropertyInfo comPropertyInfo = comType.Properties.Where(x => x.Name.Equals(propertyName)).FirstOrDefault();
+                var comPropertyInfo = comType.Properties.Where(x => x.Name.Equals(propertyName)).FirstOrDefault();
 
                 if ((comPropertyInfo != null) && (comPropertyInfo.GetFunction != null))
                 {
@@ -237,7 +219,6 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
         {
             ComPtr.CleanupUniqueRCW(dispatch);
         }
-
 
         return comTypeInfo;
     }
@@ -308,7 +289,7 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
 
     public int TryInvokeMethod(int dispId, object[] args, out object returnValue)
     {
-        int hr = NativeMethods.S_OK;
+        var hr = NativeMethods.S_OK;
         IDispatch dispatch = null;
         returnValue = null;
 
@@ -339,7 +320,7 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
 
     public int TryInvokeMethod(string name, object[] args, out object returnValue)
     {
-        int hr = NativeMethods.S_OK;
+        var hr = NativeMethods.S_OK;
         IDispatch dispatch = null;
         returnValue = null;
 
@@ -370,7 +351,7 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
 
     public int TryInvokePropertyGet(int dispId, out object value)
     {
-        int hr = NativeMethods.S_OK;
+        var hr = NativeMethods.S_OK;
         IDispatch dispatch = null;
         value = null;
 
@@ -401,7 +382,7 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
 
     public int TryInvokePropertyGet(string propertyName, out object value)
     {
-        int hr = NativeMethods.S_OK;
+        var hr = NativeMethods.S_OK;
         IDispatch dispatch = null;
         value = null;
 
@@ -432,9 +413,9 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
 
     public int TryInvokePropertySet(string propertyName, object value)
     {
-        int hr = NativeMethods.S_OK;
+        var hr = NativeMethods.S_OK;
         IDispatch dispatch = null;
-        
+
         try
         {
             if (IsDispatch)
@@ -462,7 +443,7 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
 
     public bool TryIsCollection()
     {
-        ComTypeInfo comTypeInfo = TryGetComTypeInfo();
+        var comTypeInfo = TryGetComTypeInfo();
 
         if (comTypeInfo != null)
         {
@@ -478,7 +459,7 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
         {
             if (rcw != null)
             {
-                int count = Marshal.FinalReleaseComObject(rcw);
+                var count = Marshal.FinalReleaseComObject(rcw);
             }
         }
         catch
@@ -486,103 +467,77 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
         }
     }
 
-    #endregion
+    #endregion Methods
 
     #region "TypeDescriptor Implementation"
+
     /// <summary>
     /// Get Class Name
     /// </summary>
     /// <returns>String</returns>
-    public String GetClassName()
-    {
-        return TypeDescriptor.GetClassName(this, true);
-    }
+    public string GetClassName() => TypeDescriptor.GetClassName(this, true);
 
     /// <summary>
     /// GetAttributes
     /// </summary>
     /// <returns>AttributeCollection</returns>
-    public AttributeCollection GetAttributes()
-    {
-        return TypeDescriptor.GetAttributes(this, true);
-    }
+    public AttributeCollection GetAttributes() => TypeDescriptor.GetAttributes(this, true);
 
     /// <summary>
     /// GetComponentName
     /// </summary>
     /// <returns>String</returns>
-    public String GetComponentName()
-    {
-        return TypeDescriptor.GetComponentName(this, true);
-    }
+    public string GetComponentName() => TypeDescriptor.GetComponentName(this, true);
 
     /// <summary>
     /// GetConverter
     /// </summary>
     /// <returns>TypeConverter</returns>
-    public TypeConverter GetConverter()
-    {
-        return TypeDescriptor.GetConverter(this, true);
-    }
+    public TypeConverter GetConverter() => TypeDescriptor.GetConverter(this, true);
 
     /// <summary>
     /// GetDefaultEvent
     /// </summary>
     /// <returns>EventDescriptor</returns>
-    public EventDescriptor GetDefaultEvent()
-    {
-        return TypeDescriptor.GetDefaultEvent(this, true);
-    }
+    public EventDescriptor GetDefaultEvent() => TypeDescriptor.GetDefaultEvent(this, true);
 
     /// <summary>
     /// GetDefaultProperty
     /// </summary>
     /// <returns>PropertyDescriptor</returns>
-    public PropertyDescriptor GetDefaultProperty()
-    {
-        return TypeDescriptor.GetDefaultProperty(this, true);
-    }
+    public PropertyDescriptor GetDefaultProperty() => TypeDescriptor.GetDefaultProperty(this, true);
 
     /// <summary>
     /// GetEditor
     /// </summary>
     /// <param name="editorBaseType">editorBaseType</param>
     /// <returns>object</returns>
-    public object GetEditor(Type editorBaseType)
-    {
-        return TypeDescriptor.GetEditor(this, editorBaseType, true);
-    }
+    public object GetEditor(Type editorBaseType) => TypeDescriptor.GetEditor(this, editorBaseType, true);
 
-    public EventDescriptorCollection GetEvents(Attribute[] attributes)
-    {
-        return TypeDescriptor.GetEvents(this, attributes, true);
-    }
+    public EventDescriptorCollection GetEvents(Attribute[] attributes) => TypeDescriptor.GetEvents(this, attributes, true);
 
-    public EventDescriptorCollection GetEvents()
-    {
-        return TypeDescriptor.GetEvents(this, true);
-    }
+    public EventDescriptorCollection GetEvents() => TypeDescriptor.GetEvents(this, true);
 
     public PropertyDescriptorCollection GetProperties(Attribute[] attributes)
     {
         if (_propertyDescriptorCollection == null)
         {
-            _propertyDescriptorCollection = new PropertyDescriptorCollection(new PropertyDescriptor[] { }, true);
+            _propertyDescriptorCollection = new PropertyDescriptorCollection([], true);
 
-            ComTypeInfo comTypeInfo = TryGetComTypeInfo();
+            var comTypeInfo = TryGetComTypeInfo();
 
             if (comTypeInfo != null)
             {
-                List<ComPtrPropertyDescriptor> list = new List<ComPtrPropertyDescriptor>();
+                var list = new List<ComPtrPropertyDescriptor>();
 
-                foreach (ComPropertyInfo comPropertyInfo in comTypeInfo.GetProperties(true))
+                foreach (var comPropertyInfo in comTypeInfo.GetProperties(true))
                 {
-                    ComFunctionInfo getComFunctionInfo = comPropertyInfo.GetFunction;
-                    bool bReadOnly = comPropertyInfo.SetFunction == null ? true : false;
+                    var getComFunctionInfo = comPropertyInfo.GetFunction;
+                    var bReadOnly = comPropertyInfo.SetFunction == null ? true : false;
 
                     if (getComFunctionInfo != null)
                     {
-                        VarEnum variantType = getComFunctionInfo.ReturnParameter.VariantType;
+                        var variantType = getComFunctionInfo.ReturnParameter.VariantType;
 
                         switch (variantType)
                         {
@@ -597,7 +552,7 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
                         // Special case. MailSession is a PITA property that causes modal dialog.
                         if (comPropertyInfo.Name.Equals("MailSession"))
                         {
-                            ComPtrProperty comPtrProperty = new ComPtrProperty(comPropertyInfo.Name, comPropertyInfo.Description, 0, typeof(int), variantType, true);
+                            var comPtrProperty = new ComPtrProperty(comPropertyInfo.Name, comPropertyInfo.Description, 0, typeof(int), variantType, true);
                             list.Add(new ComPtrPropertyDescriptor(ref comPtrProperty, comPropertyInfo, attributes));
                             continue;
                         }
@@ -605,7 +560,7 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
                         object value = null;
                         if (MarshalEx.Succeeded(TryInvokePropertyGet(getComFunctionInfo.DispId, out value)))
                         {
-                            Type propertyType = typeof(object);
+                            var propertyType = typeof(object);
 
                             if (value != null)
                             {
@@ -616,14 +571,14 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
                                 bReadOnly = true;
                             }
 
-                            ComPtrProperty comPtrProperty = new ComPtrProperty(comPropertyInfo.Name, comPropertyInfo.Description, value, propertyType, variantType, bReadOnly);
+                            var comPtrProperty = new ComPtrProperty(comPropertyInfo.Name, comPropertyInfo.Description, value, propertyType, variantType, bReadOnly);
                             list.Add(new ComPtrPropertyDescriptor(ref comPtrProperty, comPropertyInfo, attributes));
                         }
                     }
                 }
 
 #if DEBUG
-                ComPtrProperty refCountProperty = new ComPtrProperty("[RefCount]", "", this.RefCount, typeof(int), VarEnum.VT_I4, true);
+                var refCountProperty = new ComPtrProperty("[RefCount]", "", this.RefCount, typeof(int), VarEnum.VT_I4, true);
                 list.Add(new ComPtrPropertyDescriptor(ref refCountProperty, null, attributes));
 #endif
                 _propertyDescriptorCollection = new PropertyDescriptorCollection(list.ToArray());
@@ -633,26 +588,20 @@ public class ComPtr : SafeHandle, ICustomTypeDescriptor
         return _propertyDescriptorCollection;
     }
 
-    public PropertyDescriptorCollection GetProperties()
-    {
-        return TypeDescriptor.GetProperties(this, true);
-    }
+    public PropertyDescriptorCollection GetProperties() => TypeDescriptor.GetProperties(this, true);
 
-    public object GetPropertyOwner(PropertyDescriptor pd)
-    {
-        return this;
-    }
+    public object GetPropertyOwner(PropertyDescriptor pd) => this;
 
-    #endregion
+    #endregion "TypeDescriptor Implementation"
 }
 
 public class ComPtrProperty
 {
     private string _name = string.Empty;
     private object _value = null;
-    private string _description = String.Empty;
+    private string _description = string.Empty;
     private Type _type;
-    VarEnum _variantType = default(VarEnum);
+    private VarEnum _variantType = default(VarEnum);
     private bool _readonly = false;
 
     public ComPtrProperty(string sName, string description, object value, Type type, VarEnum variantType, bool bReadOnly)
@@ -665,23 +614,22 @@ public class ComPtrProperty
         _readonly = bReadOnly;
     }
 
-    public string Name { get { return _name; } }
-    public string Description { get { return _description; } }
-    public Type Type { get { return _type; } }
-    public VarEnum VariantType { get { return _variantType; } }
-    public bool ReadOnly { get { return _readonly; } }
+    public string Name => _name;
+    public string Description => _description;
+    public Type Type => _type;
+    public VarEnum VariantType => _variantType;
+    public bool ReadOnly => _readonly;
 
     public object Value
     {
-        get { return _value; }
-        set { _value = value; }
+        get => _value; set => _value = value;
     }
 }
 
 public class ComPtrPropertyDescriptor : PropertyDescriptor
 {
-    ComPtrProperty _comPtrProperty;
-    ComPropertyInfo _comPropertyInfo;
+    private ComPtrProperty _comPtrProperty;
+    private ComPropertyInfo _comPropertyInfo;
 
     public ComPtrPropertyDescriptor(ref ComPtrProperty comPtrProperty, ComPropertyInfo comPropertyInfo, Attribute[] attrs)
         : base(comPtrProperty.Name, attrs)
@@ -692,9 +640,9 @@ public class ComPtrPropertyDescriptor : PropertyDescriptor
 
     #region PropertyDescriptor specific
 
-    public override bool CanResetValue(object component) { return false; }
+    public override bool CanResetValue(object component) => false;
 
-    public override Type ComponentType { get { return null; } }
+    public override Type ComponentType => null;
 
     public override object GetValue(object component)
     {
@@ -716,7 +664,7 @@ public class ComPtrPropertyDescriptor : PropertyDescriptor
         {
         }
 
-        ComPtr p = component as ComPtr;
+        var p = component as ComPtr;
 
         if (p != null)
         {
@@ -730,21 +678,22 @@ public class ComPtrPropertyDescriptor : PropertyDescriptor
         return _comPtrProperty.Value;
     }
 
-    public override string Description { get { return _comPtrProperty.Description; } }
+    public override string Description => _comPtrProperty.Description;
 
-    public override string Category { get { return string.Empty; } }
+    public override string Category => string.Empty;
 
-    public override string DisplayName { get { return _comPtrProperty.Name; } }
+    public override string DisplayName => _comPtrProperty.Name;
 
-    public override bool IsReadOnly { get { return _comPtrProperty.ReadOnly; } }
+    public override bool IsReadOnly => _comPtrProperty.ReadOnly;
 
-    public override void ResetValue(object component) { }
+    public override void ResetValue(object component)
+    { }
 
-    public override bool ShouldSerializeValue(object component) { return false; }
+    public override bool ShouldSerializeValue(object component) => false;
 
     public override void SetValue(object component, object value)
     {
-        ComPtr p = component as ComPtr;
+        var p = component as ComPtr;
 
         if (p != null)
         {
@@ -755,15 +704,12 @@ public class ComPtrPropertyDescriptor : PropertyDescriptor
         }
     }
 
-    public override Type PropertyType { get { return _comPtrProperty.Type; } }
+    public override Type PropertyType => _comPtrProperty.Type;
 
-    #endregion
+    #endregion PropertyDescriptor specific
 
-    public ComPropertyInfo ComPropertyInfo { get { return _comPropertyInfo; } }
-    public VarEnum VariantType { get { return _comPtrProperty.VariantType; } }
+    public ComPropertyInfo ComPropertyInfo => _comPropertyInfo;
+    public VarEnum VariantType => _comPtrProperty.VariantType;
 
-    public override string ToString()
-    {
-        return String.Format("{0} [{1}]", _comPtrProperty.Name, _comPtrProperty.VariantType);
-    }
+    public override string ToString() => string.Format("{0} [{1}]", _comPtrProperty.Name, _comPtrProperty.VariantType);
 }

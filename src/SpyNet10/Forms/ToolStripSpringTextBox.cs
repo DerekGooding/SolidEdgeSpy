@@ -6,12 +6,10 @@ namespace SpyNet10.Forms;
 public class ToolStripSpringTextBox : ToolStripTextBox
 {
     public event EventHandler TextAccepted;
+
     private string _inactiveText;
 
-    public ToolStripSpringTextBox()
-    {
-        this.Text = InactiveText;
-    }
+    public ToolStripSpringTextBox() => this.Text = InactiveText;
 
     public override string Text
     {
@@ -19,22 +17,20 @@ public class ToolStripSpringTextBox : ToolStripTextBox
         {
             if (base.Text.Equals(InactiveText))
             {
-                return String.Empty;
+                return string.Empty;
             }
 
             return base.Text;
         }
-        set
-        {
-            base.Text = value;
-        }
+
+        set => base.Text = value;
     }
 
     protected override void OnGotFocus(EventArgs e)
     {
         if (base.Text.Equals(InactiveText))
         {
-            base.Text = String.Empty;
+            base.Text = string.Empty;
         }
 
         base.OnGotFocus(e);
@@ -57,7 +53,7 @@ public class ToolStripSpringTextBox : ToolStripTextBox
 
     protected override void OnLostFocus(EventArgs e)
     {
-        if (String.IsNullOrWhiteSpace(this.Text))
+        if (string.IsNullOrWhiteSpace(this.Text))
         {
             this.Text = InactiveText;
         }
@@ -71,7 +67,7 @@ public class ToolStripSpringTextBox : ToolStripTextBox
 
         if (this.Focused == false)
         {
-            if (String.IsNullOrEmpty(this.Text))
+            if (string.IsNullOrEmpty(this.Text))
             {
                 this.Text = InactiveText;
             }
@@ -89,21 +85,21 @@ public class ToolStripSpringTextBox : ToolStripTextBox
             return DefaultSize;
         }
 
-        // Declare a variable to store the total available width as 
-        // it is calculated, starting with the display width of the 
+        // Declare a variable to store the total available width as
+        // it is calculated, starting with the display width of the
         // owning ToolStrip.
-        Int32 width = Owner.DisplayRectangle.Width;
+        var width = Owner.DisplayRectangle.Width;
 
-        // Subtract the width of the overflow button if it is displayed. 
+        // Subtract the width of the overflow button if it is displayed.
         if (Owner.OverflowButton.Visible)
         {
             width = width - Owner.OverflowButton.Width -
                 Owner.OverflowButton.Margin.Horizontal;
         }
 
-        // Declare a variable to maintain a count of ToolStripSpringTextBox 
-        // items currently displayed in the owning ToolStrip. 
-        Int32 springBoxCount = 0;
+        // Declare a variable to maintain a count of ToolStripSpringTextBox
+        // items currently displayed in the owning ToolStrip.
+        var springBoxCount = 0;
 
         foreach (ToolStripItem item in Owner.Items)
         {
@@ -112,7 +108,7 @@ public class ToolStripSpringTextBox : ToolStripTextBox
 
             if (item is ToolStripSpringTextBox)
             {
-                // For ToolStripSpringTextBox items, increment the count and 
+                // For ToolStripSpringTextBox items, increment the count and
                 // subtract the margin width from the total available width.
                 springBoxCount++;
                 width -= item.Margin.Horizontal;
@@ -126,7 +122,7 @@ public class ToolStripSpringTextBox : ToolStripTextBox
         }
 
         // If there are multiple ToolStripSpringTextBox items in the owning
-        // ToolStrip, divide the total available width between them. 
+        // ToolStrip, divide the total available width between them.
         if (springBoxCount > 1) width /= springBoxCount;
 
         // If the available width is less than the default width, use the
@@ -134,8 +130,8 @@ public class ToolStripSpringTextBox : ToolStripTextBox
         if (width < DefaultSize.Width) width = DefaultSize.Width;
 
         // Retrieve the preferred size from the base class, but change the
-        // width to the calculated width. 
-        Size size = base.GetPreferredSize(constrainingSize);
+        // width to the calculated width.
+        var size = base.GetPreferredSize(constrainingSize);
         size.Width = width;
         return size;
     }
@@ -143,7 +139,7 @@ public class ToolStripSpringTextBox : ToolStripTextBox
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public string InactiveText
     {
-        get { return _inactiveText; }
+        get => _inactiveText;
         set
         {
             _inactiveText = value;

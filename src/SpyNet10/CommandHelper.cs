@@ -1,14 +1,14 @@
-﻿using SpyNet10.InteropServices;
-using SpyNet10.Extensions;
+﻿using SpyNet10.Extensions;
+using SpyNet10.InteropServices;
 
 namespace SpyNet10;
 
-static class CommandHelper
+internal static class CommandHelper
 {
-    static ComTypeLibrary _constantsTypeLib = null;
-    static Dictionary<Guid, ComEnumInfo> _environmentConstantsMap = new Dictionary<Guid, ComEnumInfo>();
+    private static ComTypeLibrary _constantsTypeLib = null;
+    private static Dictionary<Guid, ComEnumInfo> _environmentConstantsMap = new();
 
-    static string[,] _categoryConstantsMap = new string[,]
+    private static string[,] _categoryConstantsMap = new string[,]
     {
         { CategoryIDs.CATID_SEAssembly, "AssemblyCommandConstants" },
         { CategoryIDs.CATID_SEDMAssembly, "AssemblyCommandConstants" },
@@ -40,15 +40,15 @@ static class CommandHelper
         try
         {
             //Solid Edge Constants Type Library
-            Guid typeLibGuid = new Guid("{C467A6F5-27ED-11D2-BE30-080036B4D502}");
+            var typeLibGuid = new Guid("{C467A6F5-27ED-11D2-BE30-080036B4D502}");
 
             _constantsTypeLib = ComTypeManager.Instance.ComTypeLibraries.Where(x => x.Guid.Equals(typeLibGuid)).FirstOrDefault();
 
             if (_constantsTypeLib != null)
             {
-                for (int i = 0; i < _categoryConstantsMap.GetLength(0); i++)
+                for (var i = 0; i < _categoryConstantsMap.GetLength(0); i++)
                 {
-                    Guid guid = new Guid(_categoryConstantsMap[i, 0]);
+                    var guid = new Guid(_categoryConstantsMap[i, 0]);
                     _environmentConstantsMap.Add(guid, _constantsTypeLib.Enums.Where(x => x.Name.Equals(_categoryConstantsMap[i, 1])).FirstOrDefault());
                 }
             }
@@ -71,8 +71,8 @@ static class CommandHelper
         try
         {
             ComEnumInfo enumInfo = null;
-            SolidEdgeFramework.Environment environment = application.GetActiveEnvironment();
-            Guid environmentGuid = environment.GetGuid();
+            var environment = application.GetActiveEnvironment();
+            var environmentGuid = environment.GetGuid();
 
             if (_environmentConstantsMap.TryGetValue(environmentGuid, out enumInfo))
             {
@@ -80,7 +80,7 @@ static class CommandHelper
 
                 if (variableInfo != null)
                 {
-                    return String.Format("{0} [{1}.{2}]", theCommandID, variableInfo.ComTypeInfo.Name, variableInfo.Name);
+                    return string.Format("{0} [{1}.{2}]", theCommandID, variableInfo.ComTypeInfo.Name, variableInfo.Name);
                 }
             }
         }
@@ -89,6 +89,6 @@ static class CommandHelper
             GlobalExceptionHandler.HandleException();
         }
 
-        return String.Format("{0} [Undefined]", theCommandID);
+        return string.Format("{0} [Undefined]", theCommandID);
     }
 }

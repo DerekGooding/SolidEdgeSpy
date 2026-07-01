@@ -2,7 +2,7 @@
 
 namespace SpyNet10;
 
-static class GlobalExceptionHandler
+internal static class GlobalExceptionHandler
 {
     public static void HandleException()
     {

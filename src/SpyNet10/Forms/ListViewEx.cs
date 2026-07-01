@@ -9,10 +9,7 @@ public class ListViewEx : ListView
     {
     }
 
-    protected override void OnCreateControl()
-    {
-        base.OnCreateControl();
-    }
+    protected override void OnCreateControl() => base.OnCreateControl();
 
     protected override void OnHandleCreated(EventArgs e)
     {
@@ -53,11 +50,11 @@ public class ListViewEx : ListView
 
     public void CopySelectedItemsToClipboard()
     {
-        StringBuilder clipboardText = new StringBuilder();
+        var clipboardText = new StringBuilder();
 
         foreach (ListViewItem item in SelectedItems)
         {
-            StringBuilder line = new StringBuilder();
+            var line = new StringBuilder();
 
             foreach (ListViewItem.ListViewSubItem subItem in item.SubItems)
             {

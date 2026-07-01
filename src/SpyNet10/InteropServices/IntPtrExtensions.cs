@@ -4,8 +4,5 @@ namespace SpyNet10.InteropServices;
 
 public static class IntPtrExtensions
 {
-    public static T ToStructure<T>(this IntPtr p)
-    {
-        return (T)Marshal.PtrToStructure(p, typeof(T));
-    }
+    public static T ToStructure<T>(this IntPtr p) => (T)Marshal.PtrToStructure(p, typeof(T));
 }

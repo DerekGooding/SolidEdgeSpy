@@ -25,36 +25,34 @@ public sealed class NavigationController<T> : IDisposable where T : class
     #region Fields
 
     private T _currentItem;
-    readonly LinkedList<T> _linkedList;
+    private readonly LinkedList<T> _linkedList;
     private LinkedListNode<T> _currentLinkedListNode;
 
-    readonly ToolStripButton _buttonBack;
-    readonly ToolStripButton _buttonForward;
+    private readonly ToolStripButton _buttonBack;
+    private readonly ToolStripButton _buttonForward;
 
     private bool _allowDuplicates;
     private bool _enabled;
     private bool _inProc;
-    readonly int _limit;
+    private readonly int _limit;
 
-    #endregion
+    #endregion Fields
 
     #region Public Interface
 
     public bool AllowDuplicates
     {
-        get { return _allowDuplicates; }
-        set { _allowDuplicates = value; }
+        get => _allowDuplicates; set => _allowDuplicates = value;
     }
 
     public bool Enabled
     {
-        get { return _enabled; }
-        set { _enabled = value; }
+        get => _enabled; set => _enabled = value;
     }
 
     public T CurrentItem
     {
-        get { return _currentItem; }
+        get => _currentItem;
         set
         {
             if (_enabled)
@@ -101,14 +99,14 @@ public sealed class NavigationController<T> : IDisposable where T : class
     {
         if (items != null)
         {
-            foreach (T item in items)
+            foreach (var item in items)
             {
                 Remove(item);
             }
         }
     }
 
-    #endregion
+    #endregion Public Interface
 
     #region Private Interface
 
@@ -128,7 +126,7 @@ public sealed class NavigationController<T> : IDisposable where T : class
 
     private void toolStripButton_ButtonClick(object sender, EventArgs e)
     {
-        LinkedListNode<T> node = sender.Equals(_buttonBack) ? _currentLinkedListNode.Next : _currentLinkedListNode.Previous;
+        var node = sender.Equals(_buttonBack) ? _currentLinkedListNode.Next : _currentLinkedListNode.Previous;
 
         OnGotoItem(node);
 
@@ -139,7 +137,7 @@ public sealed class NavigationController<T> : IDisposable where T : class
 
     private void cms_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
     {
-        LinkedListNode<T> node = (LinkedListNode<T>)e.ClickedItem.Tag;
+        var node = (LinkedListNode<T>)e.ClickedItem.Tag;
 
         OnGotoItem(node);
 
@@ -153,8 +151,8 @@ public sealed class NavigationController<T> : IDisposable where T : class
     {
         if (_limit != 0 && _linkedList.Count > _limit)
         {
-            LinkedListNode<T> node = _currentLinkedListNode.Next;
-            int count = 0;
+            var node = _currentLinkedListNode.Next;
+            var count = 0;
 
             while (node != null)
             {
@@ -188,7 +186,7 @@ public sealed class NavigationController<T> : IDisposable where T : class
     {
         Debug.Assert(node != null && node.Value != null);
 
-        T item = node.Value;
+        var item = node.Value;
 
         // block client setting CurrentItem
         _inProc = true;
@@ -201,7 +199,7 @@ public sealed class NavigationController<T> : IDisposable where T : class
         _inProc = false;
     }
 
-    #endregion
+    #endregion Private Interface
 
     #region IDisposable Members
 
@@ -210,18 +208,15 @@ public sealed class NavigationController<T> : IDisposable where T : class
     {
     }
 
-    #endregion
+    #endregion IDisposable Members
 }
 
 /// <summary>Provides data for the History{T}.GotoItem event</summary>
 public class NavigationControllerEventArgs<T> : EventArgs
 {
-    public NavigationControllerEventArgs(T item)
-    {
-        _Item = item;
-    }
+    public NavigationControllerEventArgs(T item) => _Item = item;
 
-    readonly T _Item;
+    private readonly T _Item;
 
-    public T Item { get { return _Item; } }
+    public T Item => _Item;
 }

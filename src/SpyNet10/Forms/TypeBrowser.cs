@@ -5,7 +5,7 @@ namespace SpyNet10.Forms;
 public partial class TypeBrowser : UserControl
 {
     private bool _scanComplete = false;
-    readonly NavigationController<object> _navigationController;
+    private readonly NavigationController<object> _navigationController;
 
     public TypeBrowser()
     {
@@ -29,12 +29,12 @@ public partial class TypeBrowser : UserControl
         }
     }
 
-    void _navigationController_GotoItem(object sender, NavigationControllerEventArgs<object> e)
+    private void _navigationController_GotoItem(object sender, NavigationControllerEventArgs<object> e)
     {
         try
         {
-            TreeNode treeNode = e.Item as TreeNode;
-            ListViewItem listViewItem = e.Item as ListViewItem;
+            var treeNode = e.Item as TreeNode;
+            var listViewItem = e.Item as ListViewItem;
 
             if (treeNode != null)
             {
@@ -54,7 +54,7 @@ public partial class TypeBrowser : UserControl
         }
     }
 
-    void Instance_ComTypeInfoSelected(object sender, ComTypeInfo comTypeInfo)
+    private void Instance_ComTypeInfoSelected(object sender, ComTypeInfo comTypeInfo)
     {
         _scanComplete = false;
 
@@ -62,7 +62,7 @@ public partial class TypeBrowser : UserControl
         {
             if (comTypeTreeView.IsFiltered)
             {
-                comTypeTreeView.Filter = String.Empty;
+                comTypeTreeView.Filter = string.Empty;
             }
 
             if (comTypeTreeView.Nodes.Count == 0)
@@ -78,7 +78,7 @@ public partial class TypeBrowser : UserControl
         }
     }
 
-    void Instance_ComTypeLibrarySelected(object sender, ComTypeLibrary comTypeLibrary)
+    private void Instance_ComTypeLibrarySelected(object sender, ComTypeLibrary comTypeLibrary)
     {
         _scanComplete = false;
 
@@ -86,7 +86,7 @@ public partial class TypeBrowser : UserControl
         {
             if (comTypeTreeView.IsFiltered)
             {
-                comTypeTreeView.Filter = String.Empty;
+                comTypeTreeView.Filter = string.Empty;
             }
 
             if (comTypeTreeView.Nodes.Count == 0)
@@ -110,7 +110,7 @@ public partial class TypeBrowser : UserControl
 
         foreach (TreeNode node in nodes)
         {
-            ComTypeLibraryTreeNode comTypeLibraryTreeNode = node as ComTypeLibraryTreeNode;
+            var comTypeLibraryTreeNode = node as ComTypeLibraryTreeNode;
 
             if (comTypeLibraryTreeNode != null)
             {
@@ -133,8 +133,8 @@ public partial class TypeBrowser : UserControl
 
         foreach (TreeNode node in nodes)
         {
-            ComTypeLibraryTreeNode comTypeLibraryTreeNode = node as ComTypeLibraryTreeNode;
-            ComTypeInfoTreeNode comTypeInfoTreeNode = node as ComTypeInfoTreeNode;
+            var comTypeLibraryTreeNode = node as ComTypeLibraryTreeNode;
+            var comTypeInfoTreeNode = node as ComTypeInfoTreeNode;
 
             if (comTypeLibraryTreeNode != null)
             {
@@ -157,26 +157,20 @@ public partial class TypeBrowser : UserControl
         }
     }
 
-    void comTypeTreeView_GotFocus(object sender, EventArgs e)
-    {
-        comTypeTreeView_AfterSelect(comTypeTreeView, new TreeViewEventArgs(comTypeTreeView.SelectedNode));   
-    }
+    private void comTypeTreeView_GotFocus(object sender, EventArgs e) => comTypeTreeView_AfterSelect(comTypeTreeView, new TreeViewEventArgs(comTypeTreeView.SelectedNode));
 
-    private void buttonRefresh_Click(object sender, EventArgs e)
-    {
-        comTypeTreeView.RefreshNodes();
-    }
+    private void buttonRefresh_Click(object sender, EventArgs e) => comTypeTreeView.RefreshNodes();
 
     private void comTypeTreeView_AfterSelect(object sender, TreeViewEventArgs e)
     {
         _navigationController.Remove(comTypeListView.Items.OfType<ListViewItem>().ToArray());
         _navigationController.CurrentItem = e.Node;
 
-        ComTypeLibraryTreeNode comTypeLibraryTreeNode = e.Node as ComTypeLibraryTreeNode;
-        ComTypeInfoTreeNode comTypeInfoTreeNode = e.Node as ComTypeInfoTreeNode;
-        ComFunctionInfoTreeNode comFunctionInfoTreeNode = e.Node as ComFunctionInfoTreeNode;
-        ComPropertyInfoTreeNode comPropertyInfoTreeNode = e.Node as ComPropertyInfoTreeNode;
-        ComVariableInfoTreeNode comVariableInfoTreeNode = e.Node as ComVariableInfoTreeNode;
+        var comTypeLibraryTreeNode = e.Node as ComTypeLibraryTreeNode;
+        var comTypeInfoTreeNode = e.Node as ComTypeInfoTreeNode;
+        var comFunctionInfoTreeNode = e.Node as ComFunctionInfoTreeNode;
+        var comPropertyInfoTreeNode = e.Node as ComPropertyInfoTreeNode;
+        var comVariableInfoTreeNode = e.Node as ComVariableInfoTreeNode;
 
         comTypeListView.SelectedComTypeInfo = null;
 
@@ -186,7 +180,7 @@ public partial class TypeBrowser : UserControl
         }
         else if (comTypeInfoTreeNode != null)
         {
-            ComTypeInfo comTypeInfo = comTypeInfoTreeNode.ComTypeInfo;
+            var comTypeInfo = comTypeInfoTreeNode.ComTypeInfo;
             comTypeListView.SelectedComTypeInfo = comTypeInfo;
             typeInfoRichTextBox.DescribeComTypeInfo(comTypeInfo);
         }
@@ -208,7 +202,7 @@ public partial class TypeBrowser : UserControl
     {
         if (comTypeListView.SelectedItems.Count > 0)
         {
-            ListViewItem item = comTypeListView.SelectedItems[0];
+            var item = comTypeListView.SelectedItems[0];
 
             if (item.Tag is ComFunctionInfo)
             {
@@ -231,13 +225,14 @@ public partial class TypeBrowser : UserControl
     {
         try
         {
-            string[] linkInfo = e.LinkText.Split(new char[] { '#' });
+            var linkInfo = e.LinkText.Split(['#']);
 
             switch (linkInfo.Length)
             {
                 case 1:
                     ComTypeManager.Instance.LookupAndSelect(linkInfo[0]);
                     break;
+
                 case 2:
                     ComTypeManager.Instance.LookupAndSelect(linkInfo[1]);
                     break;
@@ -249,26 +244,17 @@ public partial class TypeBrowser : UserControl
         }
     }
 
-    private void textBoxSearch_TextAccepted(object sender, EventArgs e)
-    {
-        buttonSearch_Click(sender, e);
-    }
+    private void textBoxSearch_TextAccepted(object sender, EventArgs e) => buttonSearch_Click(sender, e);
 
-    private void buttonSearch_Click(object sender, EventArgs e)
-    {
-        comTypeTreeView.Filter = textBoxSearch.Text;
-    }
+    private void buttonSearch_Click(object sender, EventArgs e) => comTypeTreeView.Filter = textBoxSearch.Text;
 
-    private void buttonClearSearch_Click(object sender, EventArgs e)
-    {
-        comTypeTreeView.Filter = String.Empty;
-    }
+    private void buttonClearSearch_Click(object sender, EventArgs e) => comTypeTreeView.Filter = string.Empty;
 
     private void comTypeTreeView_FilterChanged(object sender, EventArgs e)
     {
         if (comTypeTreeView.IsFiltered == false)
         {
-            textBoxSearch.Text = String.Empty;
+            textBoxSearch.Text = string.Empty;
         }
 
         _navigationController.Clear();

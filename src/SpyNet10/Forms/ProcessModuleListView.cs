@@ -36,24 +36,24 @@ public class ProcessModuleListView : ListViewEx
     {
         if (this.Created == false) return;
 
-        List<ListViewItem> list = new List<ListViewItem>();
-        List<ProcessModule> processModuleList = processModules.Cast<ProcessModule>().ToList();
+        var list = new List<ListViewItem>();
+        var processModuleList = processModules.Cast<ProcessModule>().ToList();
 
-        processModuleList.Sort(delegate(ProcessModule a, ProcessModule b)
+        processModuleList.Sort(delegate (ProcessModule a, ProcessModule b)
         {
             return a.BaseAddress.ToInt64().CompareTo(b.BaseAddress.ToInt64());
         });
 
         try
         {
-            foreach (ProcessModule processModule in processModuleList)
+            foreach (var processModule in processModuleList)
             {
-                ListViewItem item = new ListViewItem();
+                var item = new ListViewItem();
                 item.Text = processModule.ModuleName;
-                
-                string startAddress = String.Format("0x{0}", processModule.BaseAddress.ToString("X16"));
-                string endAddress = String.Format("0x{0}", (processModule.BaseAddress.ToInt64() + processModule.ModuleMemorySize).ToString("X16"));
-                string entryPointAddress = String.Format("0x{0}", processModule.EntryPointAddress.ToString("X16"));
+
+                var startAddress = string.Format("0x{0}", processModule.BaseAddress.ToString("X16"));
+                var endAddress = string.Format("0x{0}", (processModule.BaseAddress.ToInt64() + processModule.ModuleMemorySize).ToString("X16"));
+                var entryPointAddress = string.Format("0x{0}", processModule.EntryPointAddress.ToString("X16"));
 
                 item.SubItems.Add(startAddress);
                 item.SubItems.Add(endAddress);
@@ -65,13 +65,13 @@ public class ProcessModuleListView : ListViewEx
 
                 try
                 {
-                    string fileName = processModule.FileVersionInfo.FileName;
-                    string extension = Path.GetExtension(fileName).ToLower();
+                    var fileName = processModule.FileVersionInfo.FileName;
+                    var extension = Path.GetExtension(fileName).ToLower();
                     item.ImageKey = extension;
 
                     if (SmallImageList.Images.ContainsKey(extension) == false)
                     {
-                        Icon icon = IconTools.GetIconForFile(fileName, ShellIconSize.SmallIcon);
+                        var icon = IconTools.GetIconForFile(fileName, ShellIconSize.SmallIcon);
                         if (icon != null)
                         {
                             SmallImageList.Images.Add(icon);

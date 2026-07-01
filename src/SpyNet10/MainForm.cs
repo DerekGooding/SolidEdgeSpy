@@ -1,6 +1,6 @@
-﻿using SpyNet10.Forms;
-using SolidEdgeCommunity;
+﻿using SolidEdgeCommunity;
 using SpyNet10.Extensions;
+using SpyNet10.Forms;
 using SpyNet10.InteropServices;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -12,17 +12,17 @@ namespace SpyNet10;
 public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 {
     private SolidEdgeFramework.Application _application;
-    private Dictionary<IConnectionPoint, int> _connectionPoints = new Dictionary<IConnectionPoint, int>();
-    private ConcurrentQueue<SpyNet10.Forms.EventMonitorItem> _eventQueue = new ConcurrentQueue<Forms.EventMonitorItem>();
-    private static AutoResetEvent _uiAutoResetEvent = new AutoResetEvent(false);
+    private Dictionary<IConnectionPoint, int> _connectionPoints = new();
+    private ConcurrentQueue<SpyNet10.Forms.EventMonitorItem> _eventQueue = new();
+    private static AutoResetEvent _uiAutoResetEvent = new(false);
     private ConnectionPointController _connectionPointController;
 
-    const int TabPageObjectBrowserIndex = 0;
-    const int TabPageTypeBrowserIndex = 1;
-    const int TabPageCommandBrowserIndex = 2;
-    const int TabPageEventMonitorIndex = 3;
-    const int TabPageGlobalParametersIndex = 4;
-    const int TabPageProcessBrowserIndex = 5;
+    private const int TabPageObjectBrowserIndex = 0;
+    private const int TabPageTypeBrowserIndex = 1;
+    private const int TabPageCommandBrowserIndex = 2;
+    private const int TabPageEventMonitorIndex = 3;
+    private const int TabPageGlobalParametersIndex = 4;
+    private const int TabPageProcessBrowserIndex = 5;
 
     public MainForm()
     {
@@ -75,7 +75,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     private void eventMonitorTimer_Tick(object sender, EventArgs e)
     {
-        List<EventMonitorItem> items = new List<EventMonitorItem>();
+        var items = new List<EventMonitorItem>();
         EventMonitorItem item = null;
 
         while (_eventQueue.TryDequeue(out item))
@@ -200,7 +200,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
     {
         try
         {
-            using (AboutForm form = new AboutForm())
+            using (var form = new AboutForm())
             {
                 form.ShowDialog(this);
             }
@@ -211,45 +211,21 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
         }
     }
 
-    private void objectBrowserToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-        tabControl.SelectedIndex = TabPageObjectBrowserIndex;
-    }
+    private void objectBrowserToolStripMenuItem_Click(object sender, EventArgs e) => tabControl.SelectedIndex = TabPageObjectBrowserIndex;
 
-    private void typeBrowserToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-        tabControl.SelectedIndex = TabPageTypeBrowserIndex;
-    }
+    private void typeBrowserToolStripMenuItem_Click(object sender, EventArgs e) => tabControl.SelectedIndex = TabPageTypeBrowserIndex;
 
-    private void commandBrowserToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-        tabControl.SelectedIndex = TabPageCommandBrowserIndex;
-    }
+    private void commandBrowserToolStripMenuItem_Click(object sender, EventArgs e) => tabControl.SelectedIndex = TabPageCommandBrowserIndex;
 
-    private void eventMonitorToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-        tabControl.SelectedIndex = TabPageEventMonitorIndex;
-    }
+    private void eventMonitorToolStripMenuItem_Click(object sender, EventArgs e) => tabControl.SelectedIndex = TabPageEventMonitorIndex;
 
-    private void globalParametersToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-        tabControl.SelectedIndex = TabPageGlobalParametersIndex;
-    }
+    private void globalParametersToolStripMenuItem_Click(object sender, EventArgs e) => tabControl.SelectedIndex = TabPageGlobalParametersIndex;
 
-    void Instance_ComTypeInfoSelected(object sender, ComTypeInfo comTypeInfo)
-    {
-        tabControl.SelectedIndex = TabPageTypeBrowserIndex;
-    }
+    private void Instance_ComTypeInfoSelected(object sender, ComTypeInfo comTypeInfo) => tabControl.SelectedIndex = TabPageTypeBrowserIndex;
 
-    void Instance_ComTypeLibrarySelected(object sender, ComTypeLibrary comTypeLibrary)
-    {
-        tabControl.SelectedIndex = TabPageTypeBrowserIndex;
-    }
+    private void Instance_ComTypeLibrarySelected(object sender, ComTypeLibrary comTypeLibrary) => tabControl.SelectedIndex = TabPageTypeBrowserIndex;
 
-    private void processBrowserToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-        tabControl.SelectedIndex = TabPageProcessBrowserIndex;
-    }
+    private void processBrowserToolStripMenuItem_Click(object sender, EventArgs e) => tabControl.SelectedIndex = TabPageProcessBrowserIndex;
 
     private void SetupToolStripManager()
     {
@@ -257,7 +233,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
         {
             ToolStripManager.RenderMode = ToolStripManagerRenderMode.Professional;
 
-            ToolStripProfessionalRenderer renderer = ToolStripManager.Renderer as ToolStripProfessionalRenderer;
+            var renderer = ToolStripManager.Renderer as ToolStripProfessionalRenderer;
             if (renderer != null)
             {
                 renderer.RoundedEdges = false;
@@ -342,7 +318,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
     {
         try
         {
-            Version version = new Version(1, 0);
+            var version = new Version(1, 0);
             ComTypeManager.Instance.LoadRegTypeLib(TypeLibGuid.RevisionManager, version);
             ComTypeManager.Instance.LoadRegTypeLib(TypeLibGuid.SEInstallDataLib, version);
             ComTypeManager.Instance.LoadRegTypeLib(TypeLibGuid.SolidEdgeAssembly, version);
@@ -361,20 +337,20 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
         }
     }
 
-    public SolidEdgeFramework.Application Application { get { return _application; } }
+    public SolidEdgeFramework.Application Application => _application;
 
     #region SolidEdgeFramework.ISEApplicationEvents
 
     public void AfterActiveDocumentChange(object theDocument)
     {
-        string eventString = Resources.AfterActiveDocumentChangeFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.AfterActiveDocumentChangeFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
 
         try
         {
-            SolidEdgeFramework.Environment environment = _application.GetActiveEnvironment();
+            var environment = _application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -383,7 +359,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = String.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"));
+            eventString = string.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"));
         }
         catch
         {
@@ -391,10 +367,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         _eventQueue.Enqueue(new Forms.EventMonitorItem(eventString, environmentName, environmentCaption, environmentCATID));
 
-        this.BeginInvokeIfRequired(frm =>
-        {
-            frm.HandleAutoResetEvent();
-        });
+        this.BeginInvokeIfRequired(frm => frm.HandleAutoResetEvent());
 
         _uiAutoResetEvent.WaitOne(2000);
         _uiAutoResetEvent.Reset();
@@ -402,14 +375,14 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     public void AfterCommandRun(int theCommandID)
     {
-        string eventString = Resources.AfterCommandRunFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.AfterCommandRunFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
 
         try
         {
-            SolidEdgeFramework.Environment environment = _application.GetActiveEnvironment();
+            var environment = _application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -418,7 +391,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = String.Format(eventString, CommandHelper.ResolveCommandId(_application, theCommandID));
+            eventString = string.Format(eventString, CommandHelper.ResolveCommandId(_application, theCommandID));
         }
         catch
         {
@@ -429,14 +402,14 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     public void AfterDocumentOpen(object theDocument)
     {
-        string eventString = Resources.AfterDocumentOpenFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.AfterDocumentOpenFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
 
         try
         {
-            SolidEdgeFramework.Environment environment = _application.GetActiveEnvironment();
+            var environment = _application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -445,7 +418,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = String.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"));
+            eventString = string.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"));
         }
         catch
         {
@@ -453,10 +426,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         _eventQueue.Enqueue(new Forms.EventMonitorItem(eventString, environmentName, environmentCaption, environmentCATID));
 
-        this.BeginInvokeIfRequired(frm =>
-        {
-            frm.HandleAutoResetEvent();
-        });
+        this.BeginInvokeIfRequired(frm => frm.HandleAutoResetEvent());
 
         _uiAutoResetEvent.WaitOne(2000);
         _uiAutoResetEvent.Reset();
@@ -464,14 +434,14 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     public void AfterDocumentPrint(object theDocument, int hDC, ref double ModelToDC, ref int Rect)
     {
-        string eventString = Resources.AfterDocumentPrintFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.AfterDocumentPrintFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
 
         try
         {
-            SolidEdgeFramework.Environment environment = _application.GetActiveEnvironment();
+            var environment = _application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -480,7 +450,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = String.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"), hDC, ModelToDC, Rect);
+            eventString = string.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"), hDC, ModelToDC, Rect);
         }
         catch
         {
@@ -491,14 +461,14 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     public void AfterDocumentSave(object theDocument)
     {
-        string eventString = Resources.AfterDocumentSaveFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.AfterDocumentSaveFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
 
         try
         {
-            SolidEdgeFramework.Environment environment = _application.GetActiveEnvironment();
+            var environment = _application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -507,7 +477,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = String.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"));
+            eventString = string.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"));
         }
         catch
         {
@@ -518,10 +488,10 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     public void AfterEnvironmentActivate(object theEnvironment)
     {
-        string eventString = Resources.AfterEnvironmentActivateFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.AfterEnvironmentActivateFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
         SolidEdgeFramework.Environment environment = null;
 
         try
@@ -535,10 +505,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            commandBrowser.BeginInvokeIfRequired(ctl =>
-            {
-                ctl.ActiveEnvironment = environment;
-            });
+            commandBrowser.BeginInvokeIfRequired(ctl => ctl.ActiveEnvironment = environment);
         }
         catch
         {
@@ -546,7 +513,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = String.Format(eventString, theEnvironment.SafeInvokeGetProperty("Name", "IUnknown"));
+            eventString = string.Format(eventString, theEnvironment.SafeInvokeGetProperty("Name", "IUnknown"));
         }
         catch
         {
@@ -562,14 +529,14 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     public void AfterNewDocumentOpen(object theDocument)
     {
-        string eventString = Resources.AfterNewDocumentOpenFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.AfterNewDocumentOpenFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
 
         try
         {
-            SolidEdgeFramework.Environment environment = _application.GetActiveEnvironment();
+            var environment = _application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -578,7 +545,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = String.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"));
+            eventString = string.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"));
         }
         catch
         {
@@ -586,10 +553,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         _eventQueue.Enqueue(new Forms.EventMonitorItem(eventString, environmentName, environmentCaption, environmentCATID));
 
-        this.BeginInvokeIfRequired(frm =>
-        {
-            frm.HandleAutoResetEvent();
-        });
+        this.BeginInvokeIfRequired(frm => frm.HandleAutoResetEvent());
 
         _uiAutoResetEvent.WaitOne(2000);
         _uiAutoResetEvent.Reset();
@@ -597,14 +561,14 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     public void AfterNewWindow(object theWindow)
     {
-        string eventString = Resources.AfterNewWindowFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.AfterNewWindowFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
 
         try
         {
-            SolidEdgeFramework.Environment environment = _application.GetActiveEnvironment();
+            var environment = _application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -613,7 +577,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = String.Format(eventString, theWindow.SafeInvokeGetProperty("Caption", "IUnknown"));
+            eventString = string.Format(eventString, theWindow.SafeInvokeGetProperty("Caption", "IUnknown"));
         }
         catch
         {
@@ -624,14 +588,14 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     public void AfterWindowActivate(object theWindow)
     {
-        string eventString = Resources.AfterWindowActivateFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.AfterWindowActivateFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
 
         try
         {
-            SolidEdgeFramework.Environment environment = _application.GetActiveEnvironment();
+            var environment = _application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -640,7 +604,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = String.Format(eventString, theWindow.SafeInvokeGetProperty("Caption", "IUnknown"));
+            eventString = string.Format(eventString, theWindow.SafeInvokeGetProperty("Caption", "IUnknown"));
         }
         catch
         {
@@ -651,14 +615,14 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     public void BeforeCommandRun(int theCommandID)
     {
-        string eventString = Resources.BeforeCommandRunFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.BeforeCommandRunFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
 
         try
         {
-            SolidEdgeFramework.Environment environment = _application.GetActiveEnvironment();
+            var environment = _application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -667,7 +631,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = String.Format(eventString, CommandHelper.ResolveCommandId(_application, theCommandID));
+            eventString = string.Format(eventString, CommandHelper.ResolveCommandId(_application, theCommandID));
         }
         catch
         {
@@ -678,14 +642,14 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     public void BeforeDocumentClose(object theDocument)
     {
-        string eventString = Resources.BeforeDocumentCloseFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.BeforeDocumentCloseFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
 
         try
         {
-            SolidEdgeFramework.Environment environment = _application.GetActiveEnvironment();
+            var environment = _application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -694,7 +658,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = String.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"));
+            eventString = string.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"));
         }
         catch
         {
@@ -704,14 +668,11 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            SolidEdgeFramework.SolidEdgeDocument document = theDocument as SolidEdgeFramework.SolidEdgeDocument;
+            var document = theDocument as SolidEdgeFramework.SolidEdgeDocument;
 
             if ((document != null) && (document.IsTemporary() == false))
             {
-                this.BeginInvokeIfRequired(frm =>
-                {
-                    frm.HandleAutoResetEvent();
-                });
+                this.BeginInvokeIfRequired(frm => frm.HandleAutoResetEvent());
 
                 _uiAutoResetEvent.WaitOne(2000);
                 _uiAutoResetEvent.Reset();
@@ -724,14 +685,14 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     public void BeforeDocumentPrint(object theDocument, int hDC, ref double ModelToDC, ref int Rect)
     {
-        string eventString = Resources.BeforeDocumentPrintFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.BeforeDocumentPrintFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
 
         try
         {
-            SolidEdgeFramework.Environment environment = _application.GetActiveEnvironment();
+            var environment = _application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -740,7 +701,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = String.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"), hDC, ModelToDC, Rect);
+            eventString = string.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"), hDC, ModelToDC, Rect);
         }
         catch
         {
@@ -751,14 +712,14 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     public void BeforeDocumentSave(object theDocument)
     {
-        string eventString = Resources.BeforeDocumentSaveFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.BeforeDocumentSaveFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
 
         try
         {
-            SolidEdgeFramework.Environment environment = _application.GetActiveEnvironment();
+            var environment = _application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -767,7 +728,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = String.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"));
+            eventString = string.Format(eventString, theDocument.SafeInvokeGetProperty("Name", "IUnknown"));
         }
         catch
         {
@@ -778,14 +739,14 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     public void BeforeEnvironmentDeactivate(object theEnvironment)
     {
-        string eventString = Resources.BeforeEnvironmentDeactivateFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.BeforeEnvironmentDeactivateFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
 
         try
         {
-            SolidEdgeFramework.Environment environment = _application.GetActiveEnvironment();
+            var environment = _application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -794,7 +755,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = String.Format(eventString, theEnvironment.SafeInvokeGetProperty("Name", "IUnknown"));
+            eventString = string.Format(eventString, theEnvironment.SafeInvokeGetProperty("Name", "IUnknown"));
         }
         catch
         {
@@ -805,14 +766,14 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     public void BeforeQuit()
     {
-        string eventString = Resources.BeforeQuitFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.BeforeQuitFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
 
         try
         {
-            SolidEdgeFramework.Environment environment = _application.GetActiveEnvironment();
+            var environment = _application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -821,10 +782,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         _eventQueue.Enqueue(new Forms.EventMonitorItem(eventString, environmentName, environmentCaption, environmentCATID));
 
-        this.BeginInvokeIfRequired(frm =>
-        {
-            frm.DisconnectFromSolidEdge(true);
-        });
+        this.BeginInvokeIfRequired(frm => frm.DisconnectFromSolidEdge(true));
 
         _uiAutoResetEvent.WaitOne(2000);
         _uiAutoResetEvent.Reset();
@@ -832,14 +790,14 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
     public void BeforeWindowDeactivate(object theWindow)
     {
-        string eventString = Resources.BeforeWindowDeactivateFormat;
-        string environmentName = String.Empty;
-        string environmentCaption = String.Empty;
-        string environmentCATID = String.Empty;
+        var eventString = Resources.BeforeWindowDeactivateFormat;
+        var environmentName = string.Empty;
+        var environmentCaption = string.Empty;
+        var environmentCATID = string.Empty;
 
         try
         {
-            SolidEdgeFramework.Environment environment = _application.GetActiveEnvironment();
+            var environment = _application.GetActiveEnvironment();
             environment.GetInfo(out environmentName, out environmentCaption, out environmentCATID);
         }
         catch
@@ -848,7 +806,7 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
 
         try
         {
-            eventString = String.Format(eventString, theWindow.SafeInvokeGetProperty("Caption", "IUnknown"));
+            eventString = string.Format(eventString, theWindow.SafeInvokeGetProperty("Caption", "IUnknown"));
         }
         catch
         {
@@ -857,5 +815,5 @@ public partial class MainForm : Form, SolidEdgeFramework.ISEApplicationEvents
         _eventQueue.Enqueue(new Forms.EventMonitorItem(eventString, environmentName, environmentCaption, environmentCATID));
     }
 
-    #endregion
+    #endregion SolidEdgeFramework.ISEApplicationEvents
 }

@@ -13,11 +13,11 @@ public class ComImplementedTypeInfo
         _implTypeFlags = implTypeFlags;
     }
 
-    public ComTypeInfo ComTypeInfo { get { return _comTypeInfo; } }
-    public System.Runtime.InteropServices.ComTypes.IMPLTYPEFLAGS ImplementedTypeFlags { get { return _implTypeFlags; } }
+    public ComTypeInfo ComTypeInfo => _comTypeInfo;
+    public System.Runtime.InteropServices.ComTypes.IMPLTYPEFLAGS ImplementedTypeFlags => _implTypeFlags;
 
-    public bool IsDefault { get { return _implTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.IMPLTYPEFLAGS.IMPLTYPEFLAG_FDEFAULT); } }
-    public bool IsSource { get { return _implTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.IMPLTYPEFLAGS.IMPLTYPEFLAG_FSOURCE); } }
-    public bool IsRestricted { get { return _implTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.IMPLTYPEFLAGS.IMPLTYPEFLAG_FRESTRICTED); } }
-    public bool IsDefaultVTable { get { return _implTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.IMPLTYPEFLAGS.IMPLTYPEFLAG_FDEFAULTVTABLE); } }
+    public bool IsDefault => _implTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.IMPLTYPEFLAGS.IMPLTYPEFLAG_FDEFAULT);
+    public bool IsSource => _implTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.IMPLTYPEFLAGS.IMPLTYPEFLAG_FSOURCE);
+    public bool IsRestricted => _implTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.IMPLTYPEFLAGS.IMPLTYPEFLAG_FRESTRICTED);
+    public bool IsDefaultVTable => _implTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.IMPLTYPEFLAGS.IMPLTYPEFLAG_FDEFAULTVTABLE);
 }

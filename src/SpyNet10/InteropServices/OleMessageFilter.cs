@@ -29,7 +29,7 @@
 //        }
 
 //        /// <summary>
-//        /// Registers this instance of IMessageFilter with OLE to handle concurrency issues on the current thread. 
+//        /// Registers this instance of IMessageFilter with OLE to handle concurrency issues on the current thread.
 //        /// </summary>
 //        /// <remarks>
 //        /// Only one message filter can be registered for each thread.
@@ -55,7 +55,7 @@
 //        }
 
 //        /// <summary>
-//        /// Unregisters a previous instance of IMessageFilter with OLE on the current thread. 
+//        /// Unregisters a previous instance of IMessageFilter with OLE on the current thread.
 //        /// </summary>
 //        /// <remarks>
 //        /// It is not necessary to call Unregister() unless you need to explicitly do so as it is handled

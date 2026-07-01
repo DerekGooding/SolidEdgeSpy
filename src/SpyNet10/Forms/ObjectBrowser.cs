@@ -4,10 +4,7 @@ namespace SpyNet10.Forms;
 
 public partial class ObjectBrowser : UserControl
 {
-    public ObjectBrowser()
-    {
-        InitializeComponent();
-    }
+    public ObjectBrowser() => InitializeComponent();
 
     private void ComBrowser_Load(object sender, EventArgs e)
     {
@@ -20,23 +17,23 @@ public partial class ObjectBrowser : UserControl
     {
         try
         {
-            List<ToolStripItem> baseToolStripItems = new List<ToolStripItem>();
-            List<ToolStripItem> newToolStripItems = new List<ToolStripItem>();
+            var baseToolStripItems = new List<ToolStripItem>();
+            var newToolStripItems = new List<ToolStripItem>();
 
-            int index = toolStrip.Items.IndexOf(separatorNavigation);
+            var index = toolStrip.Items.IndexOf(separatorNavigation);
 
-            for (int i = 0; i <= index; i++)
+            for (var i = 0; i <= index; i++)
             {
                 baseToolStripItems.Add(toolStrip.Items[i]);
             }
 
             while (node != null)
             {
-                ToolStripButton button = new ToolStripButton(node.Caption);
-                button.ToolTipText = String.Format("{0} ({1})", node.Caption, node.TypeFullName);
+                var button = new ToolStripButton(node.Caption);
+                button.ToolTipText = string.Format("{0} ({1})", node.Caption, node.TypeFullName);
                 button.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
 
-                int imageIndex = node.ImageIndex == -1 ? 0 : node.ImageIndex;
+                var imageIndex = node.ImageIndex == -1 ? 0 : node.ImageIndex;
 
                 button.Image = comTreeView.ImageList.Images[imageIndex];
                 button.Tag = node;
@@ -56,15 +53,15 @@ public partial class ObjectBrowser : UserControl
         }
     }
 
-    void toolStripNavigationButton_Click(object sender, EventArgs e)
+    private void toolStripNavigationButton_Click(object sender, EventArgs e)
     {
         try
         {
-            ToolStripButton button = sender as ToolStripButton;
+            var button = sender as ToolStripButton;
 
             if (button != null)
             {
-                ComTreeNode node = button.Tag as ComTreeNode;
+                var node = button.Tag as ComTreeNode;
                 if (node != null)
                 {
                     node.EnsureVisible();
@@ -81,7 +78,7 @@ public partial class ObjectBrowser : UserControl
     {
         comPropertyGrid.SelectedObject = null;
 
-        ComTreeNode comTreeNode = e.Node as ComTreeNode;
+        var comTreeNode = e.Node as ComTreeNode;
 
         if (comTreeNode != null)
         {
@@ -108,10 +105,10 @@ public partial class ObjectBrowser : UserControl
         {
             if (comTreeView.Focused == true) return;
 
-            GridItem gridItem = e.NewSelection;
+            var gridItem = e.NewSelection;
             if (gridItem != null)
             {
-                ComPtrPropertyDescriptor descriptor = gridItem.PropertyDescriptor as ComPtrPropertyDescriptor;
+                var descriptor = gridItem.PropertyDescriptor as ComPtrPropertyDescriptor;
                 if (descriptor != null)
                 {
                     typeInfoRichTextBox.DescribeComPropertyInfo(descriptor.ComPropertyInfo);
@@ -134,7 +131,7 @@ public partial class ObjectBrowser : UserControl
             ComTypeInfo comTypeInfo = null;
             ComPropertyInfo comPropertyInfo = null;
             ComFunctionInfo comFunctionInfo = null;
-            
+
             if (node is ComPtrItemTreeNode)
             {
                 comFunctionInfo = ((ComPtrItemTreeNode)node).ComFunctionInfo;
@@ -149,7 +146,7 @@ public partial class ObjectBrowser : UserControl
             }
             else if (node is ComPtrTreeNode)
             {
-                ComPtrTreeNode comObjectPropertyTreeNode = (ComPtrTreeNode)node;
+                var comObjectPropertyTreeNode = (ComPtrTreeNode)node;
 
                 if (comObjectPropertyTreeNode.ComPropertyInfo != null)
                 {
@@ -256,13 +253,14 @@ public partial class ObjectBrowser : UserControl
     {
         try
         {
-            string[] linkInfo = e.LinkText.Split(new char[] { '#' });
+            var linkInfo = e.LinkText.Split(['#']);
 
             switch (linkInfo.Length)
             {
                 case 1:
                     ComTypeManager.Instance.LookupAndSelect(linkInfo[0]);
                     break;
+
                 case 2:
                     ComTypeManager.Instance.LookupAndSelect(linkInfo[1]);
                     break;
@@ -274,13 +272,7 @@ public partial class ObjectBrowser : UserControl
         }
     }
 
-    private void comTreeView_Enter(object sender, EventArgs e)
-    {
-        comTreeView_AfterSelect(comTreeView, new TreeViewEventArgs(comTreeView.SelectedNode, TreeViewAction.Unknown));
-    }
+    private void comTreeView_Enter(object sender, EventArgs e) => comTreeView_AfterSelect(comTreeView, new TreeViewEventArgs(comTreeView.SelectedNode, TreeViewAction.Unknown));
 
-    private void comPropertyGrid_Enter(object sender, EventArgs e)
-    {
-        comPropertyGrid_SelectedGridItemChanged(comPropertyGrid, new SelectedGridItemChangedEventArgs(null, comPropertyGrid.SelectedGridItem));
-    }
+    private void comPropertyGrid_Enter(object sender, EventArgs e) => comPropertyGrid_SelectedGridItemChanged(comPropertyGrid, new SelectedGridItemChangedEventArgs(null, comPropertyGrid.SelectedGridItem));
 }

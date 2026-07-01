@@ -6,7 +6,7 @@ public static class SolidEdgeExtensions
 
     public static SolidEdgeFramework.Environment GetActiveEnvironment(this SolidEdgeFramework.Application application)
     {
-        SolidEdgeFramework.Environments environments = application.Environments;
+        var environments = application.Environments;
         return environments.Item(application.ActiveEnvironment);
     }
 
@@ -34,7 +34,7 @@ public static class SolidEdgeExtensions
     //public static bool GetGetGlobalParameterAsBoolean(this SolidEdgeFramework.Application application, SolidEdgeFramework.ApplicationGlobalConstants globalConstant)
     //{
     //    object val = null;
-        
+
     //    try
     //    {
     //        application.GetGlobalParameter(globalConstant, ref val);
@@ -68,7 +68,7 @@ public static class SolidEdgeExtensions
     //public static int GetGlobalParameterAsInteger(this SolidEdgeFramework.Application application, SolidEdgeFramework.ApplicationGlobalConstants globalConstant)
     //{
     //    object val = null;
-        
+
     //    try
     //    {
     //        application.GetGlobalParameter(globalConstant, ref val);
@@ -84,7 +84,7 @@ public static class SolidEdgeExtensions
     //public static string GetGetGlobalParameterAsString(this SolidEdgeFramework.Application application, SolidEdgeFramework.ApplicationGlobalConstants globalConstant)
     //{
     //    object val = null;
-        
+
     //    try
     //    {
     //        application.GetGlobalParameter(globalConstant, ref val);
@@ -97,7 +97,7 @@ public static class SolidEdgeExtensions
     //    return (string)val;
     //}
 
-    #endregion
+    #endregion SolidEdgeFramework.Application Extensions
 
     #region SolidEdgeFramework.SolidEdgeDocument Extensions
 
@@ -105,26 +105,23 @@ public static class SolidEdgeExtensions
     {
         try
         {
-            DirectoryInfo fileDirectory = new DirectoryInfo(Path.GetDirectoryName(Path.GetFullPath(document.FullName)));
-            DirectoryInfo tempDirectory = new DirectoryInfo(System.IO.Path.GetDirectoryName(System.IO.Path.GetTempPath()));
+            var fileDirectory = new DirectoryInfo(Path.GetDirectoryName(Path.GetFullPath(document.FullName)));
+            var tempDirectory = new DirectoryInfo(System.IO.Path.GetDirectoryName(System.IO.Path.GetTempPath()));
             return fileDirectory.FullName.Equals(tempDirectory.FullName, StringComparison.OrdinalIgnoreCase);
         }
         catch
         {
             GlobalExceptionHandler.HandleException();
-        }         
+        }
 
         return false;
     }
 
-    #endregion
+    #endregion SolidEdgeFramework.SolidEdgeDocument Extensions
 
     #region SolidEdgeFramework.Environment Extensions
 
-    public static Guid GetGuid(this SolidEdgeFramework.Environment environment)
-    {
-        return new Guid(environment.CATID);
-    }
+    public static Guid GetGuid(this SolidEdgeFramework.Environment environment) => new(environment.CATID);
 
     public static void GetInfo(this SolidEdgeFramework.Environment environment, out string name, out string caption, out string catid)
     {
@@ -229,5 +226,5 @@ public static class SolidEdgeExtensions
         return null;
     }
 
-    #endregion
+    #endregion SolidEdgeFramework.Environment Extensions
 }

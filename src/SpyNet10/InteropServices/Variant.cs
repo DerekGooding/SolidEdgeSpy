@@ -7,16 +7,22 @@ public struct Variant
 {
     [FieldOffset(0)]
     public ushort varType;
+
     [FieldOffset(2)]
     public ushort reserved1;
+
     [FieldOffset(4)]
     public ushort reserved2;
+
     [FieldOffset(6)]
     public ushort reserved3;
+
     [FieldOffset(8)]
     public short boolvalue;
+
     [FieldOffset(8)]
     public IntPtr ptr1;
+
     [FieldOffset(12)]
     public IntPtr ptr2;
 
@@ -41,14 +47,7 @@ public struct Variant
 
     public VarEnum VariantType
     {
-        get
-        {
-            return (VarEnum)this.varType;
-        }
-        set
-        {
-            this.varType = (ushort)value;
-        }
+        get => (VarEnum)this.varType; set => this.varType = (ushort)value;
     }
 
     public object ToObject()
@@ -83,15 +82,9 @@ public class VariantPtr : SafeHandle
     {
     }
 
-    public static implicit operator IntPtr(VariantPtr p)
-    {
-        return p.handle;
-    }
+    public static implicit operator IntPtr(VariantPtr p) => p.handle;
 
-    public override bool IsInvalid
-    {
-        get { return this.handle == IntPtr.Zero; }
-    }
+    public override bool IsInvalid => this.handle == IntPtr.Zero;
 
     protected override bool ReleaseHandle()
     {
@@ -109,18 +102,18 @@ public class VariantPtr : SafeHandle
 
 public class VariantArgPtr : SafeHandle
 {
-    private List<IntPtr> _pVariants = new List<IntPtr>();
+    private List<IntPtr> _pVariants = new();
 
     public VariantArgPtr(int count)
         : base(IntPtr.Zero, true)
     {
         if (count > 0)
         {
-            IntPtr p = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(Variant)) * count);
+            var p = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(Variant)) * count);
             SetHandle(p);
         }
 
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             _pVariants.Add(new IntPtr(this.handle.ToInt64() + (Marshal.SizeOf(typeof(Variant)) * i)));
         }
@@ -134,19 +127,13 @@ public class VariantArgPtr : SafeHandle
         }
     }
 
-    public int Count { get { return _pVariants.Count; } }
+    public int Count => _pVariants.Count;
 
-    public static implicit operator IntPtr(VariantArgPtr p)
-    {
-        return p.handle;
-    }
+    public static implicit operator IntPtr(VariantArgPtr p) => p.handle;
 
     #region Overrides
 
-    public override bool IsInvalid
-    {
-        get { return this.handle == IntPtr.Zero; }
-    }
+    public override bool IsInvalid => this.handle == IntPtr.Zero;
 
     protected override bool ReleaseHandle()
     {
@@ -154,9 +141,9 @@ public class VariantArgPtr : SafeHandle
         {
             try
             {
-                foreach (IntPtr pVariant in _pVariants)
+                foreach (var pVariant in _pVariants)
                 {
-                    int hr = NativeMethods.VariantClear(pVariant);
+                    var hr = NativeMethods.VariantClear(pVariant);
                 }
             }
             catch
@@ -179,6 +166,6 @@ public class VariantArgPtr : SafeHandle
 
         return true;
     }
-    #endregion
 
+    #endregion Overrides
 }

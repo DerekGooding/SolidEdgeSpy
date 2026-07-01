@@ -5,26 +5,17 @@ public partial class EventMonitor : UserControl
 {
     public const int EventImageIndex = 0;
 
-    public EventMonitor()
-    {
-        InitializeComponent();
-    }
+    public EventMonitor() => InitializeComponent();
 
-    private void EventBrowser_Load(object sender, EventArgs e)
-    {
-        SetupImageList();
-    }
+    private void EventBrowser_Load(object sender, EventArgs e) => SetupImageList();
 
-    private void buttonErase_Click(object sender, EventArgs e)
-    {
-        listView.Items.Clear();
-    }
+    private void buttonErase_Click(object sender, EventArgs e) => listView.Items.Clear();
 
     public void LogEvent(EventMonitorItem item)
     {
         try
         {
-            LogEvents(new EventMonitorItem[] { item });
+            LogEvents([item]);
         }
         catch
         {
@@ -40,7 +31,7 @@ public partial class EventMonitor : UserControl
             {
                 listView.BeginUpdate();
 
-                foreach (EventMonitorItem item in items)
+                foreach (var item in items)
                 {
                     item.ImageIndex = EventImageIndex;
                 }
@@ -50,8 +41,8 @@ public partial class EventMonitor : UserControl
                 listView.FocusedItem = null;
                 listView.SelectedItems.Clear();
 
-                items[items.Length -1].EnsureVisible();
-                items[items.Length -1].Selected = true;
+                items[items.Length - 1].EnsureVisible();
+                items[items.Length - 1].Selected = true;
 
                 listView.EndUpdate();
             }
@@ -82,7 +73,7 @@ public partial class EventMonitor : UserControl
 public class EventMonitorItem : ListViewItem
 {
     public EventMonitorItem(string eventString, string environmentName, string environmentCaption, string environmentCATID)
-        : base(new string[]  { eventString, environmentName, environmentCaption, environmentCATID })
+        : base([eventString, environmentName, environmentCaption, environmentCATID])
     {
     }
 }

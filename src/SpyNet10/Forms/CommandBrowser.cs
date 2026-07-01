@@ -1,25 +1,19 @@
-﻿using System.Data;
+﻿using SpyNet10.Extensions;
 using SpyNet10.InteropServices;
-using SpyNet10.Extensions;
 using System.ComponentModel;
+using System.Data;
 
 namespace SpyNet10.Forms;
 
 public partial class CommandBrowser : UserControl
 {
-    private List<ListViewItem> _commandItems = new List<ListViewItem>();
+    private List<ListViewItem> _commandItems = new();
     private string _filter;
     private SolidEdgeFramework.Environment _activeEnvironment;
 
-    public CommandBrowser()
-    {
-        InitializeComponent();
-    }
+    public CommandBrowser() => InitializeComponent();
 
-    private void textBoxSearch_TextAccepted(object sender, EventArgs e)
-    {
-        buttonSearch_Click(sender, e);
-    }
+    private void textBoxSearch_TextAccepted(object sender, EventArgs e) => buttonSearch_Click(sender, e);
 
     private void buttonSearch_Click(object sender, EventArgs e)
     {
@@ -35,7 +29,7 @@ public partial class CommandBrowser : UserControl
 
     private void textBoxCommandID_TextChanged(object sender, EventArgs e)
     {
-        int commandId = 0;
+        var commandId = 0;
 
         if (int.TryParse(textBoxCommandID.Text, out commandId))
         {
@@ -49,7 +43,7 @@ public partial class CommandBrowser : UserControl
 
     private void buttonStart_Click(object sender, EventArgs e)
     {
-        int commandId = 0;
+        var commandId = 0;
 
         try
         {
@@ -66,7 +60,7 @@ public partial class CommandBrowser : UserControl
 
     private void listViewEx_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
     {
-        textBoxCommandID.Text = String.Empty;
+        textBoxCommandID.Text = string.Empty;
 
         try
         {
@@ -93,7 +87,7 @@ public partial class CommandBrowser : UserControl
         try
         {
             //Solid Edge Constants Type Library
-            Guid typeLibGuid = new Guid("{C467A6F5-27ED-11D2-BE30-080036B4D502}");
+            var typeLibGuid = new Guid("{C467A6F5-27ED-11D2-BE30-080036B4D502}");
 
             var constantsTypeLib = ComTypeManager.Instance.ComTypeLibraries.Where(x => x.Guid.Equals(typeLibGuid)).FirstOrDefault();
 
@@ -111,15 +105,14 @@ public partial class CommandBrowser : UserControl
                         var enumValue = variable.ConstantValue;
                         var listViewItem = new ListViewItem();
                         listViewItem.Text = enumName;
-                        listViewItem.SubItems.Add(String.Format("{0}", (int)enumValue));
+                        listViewItem.SubItems.Add(string.Format("{0}", (int)enumValue));
                         listViewItem.SubItems.Add(commandType.FullName);
                         listViewItem.Tag = (int)enumValue;
                         _commandItems.Add(listViewItem);
-
                     }
 
                     // Sort commands by name.
-                    _commandItems.Sort(delegate(ListViewItem a, ListViewItem b)
+                    _commandItems.Sort(delegate (ListViewItem a, ListViewItem b)
                     {
                         return a.Text.CompareTo(b.Text);
                     });
@@ -130,13 +123,13 @@ public partial class CommandBrowser : UserControl
         {
         }
 
-        if (String.IsNullOrWhiteSpace(_filter))
+        if (string.IsNullOrWhiteSpace(_filter))
         {
             listViewEx.Items.AddRange(_commandItems.ToArray());
         }
         else
         {
-            int idFilter = 0;
+            var idFilter = 0;
 
             if (int.TryParse(_filter, out idFilter) == false)
             {
@@ -162,7 +155,7 @@ public partial class CommandBrowser : UserControl
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public SolidEdgeFramework.Environment ActiveEnvironment
     {
-        get { return _activeEnvironment; }
+        get => _activeEnvironment;
         set
         {
             _activeEnvironment = value;
@@ -170,7 +163,7 @@ public partial class CommandBrowser : UserControl
             try
             {
                 textBoxSearch.Text = null;
-                textBoxCommandID.Text = String.Empty;
+                textBoxCommandID.Text = string.Empty;
                 LoadItems();
             }
             catch

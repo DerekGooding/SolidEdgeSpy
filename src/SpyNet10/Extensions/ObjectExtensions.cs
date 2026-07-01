@@ -5,10 +5,7 @@ namespace SpyNet10.Extensions;
 
 public static class ObjectExtensions
 {
-    public static bool IsIDispatch(this object o)
-    {
-        return o is IDispatch;
-    }
+    public static bool IsIDispatch(this object o) => o is IDispatch;
 
     public static object SafeInvokeGetProperty(this object o, string name, object defaultValue)
     {

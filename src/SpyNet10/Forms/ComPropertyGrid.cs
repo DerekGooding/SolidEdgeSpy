@@ -6,12 +6,10 @@ namespace SpyNet10.Forms;
 public partial class ComPropertyGrid : UserControl
 {
     public event SelectedGridItemChangedEventHandler SelectedGridItemChanged;
+
     private GridItem _selectedGridItem;
 
-    public ComPropertyGrid()
-    {
-        InitializeComponent();
-    }
+    public ComPropertyGrid() => InitializeComponent();
 
     private void propertyGrid_SelectedGridItemChanged(object sender, SelectedGridItemChangedEventArgs e)
     {
@@ -19,7 +17,7 @@ public partial class ComPropertyGrid : UserControl
 
         if (SelectedGridItemChanged != null)
         {
-            PropertyGrid propertyGrid = sender as PropertyGrid;
+            var propertyGrid = sender as PropertyGrid;
             SelectedGridItemChanged(sender, e);
         }
     }
@@ -28,13 +26,14 @@ public partial class ComPropertyGrid : UserControl
     {
         try
         {
-            string[] linkInfo = e.LinkText.Split(new char[] { '#' });
+            var linkInfo = e.LinkText.Split(['#']);
 
             switch (linkInfo.Length)
             {
                 case 1:
                     ComTypeManager.Instance.LookupAndSelect(linkInfo[0]);
                     break;
+
                 case 2:
                     ComTypeManager.Instance.LookupAndSelect(linkInfo[1]);
                     break;
@@ -49,15 +48,8 @@ public partial class ComPropertyGrid : UserControl
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public ComPtr SelectedObject
     {
-        get
-        {
-            return (ComPtr)propertyGrid.SelectedObject;
-        }
-        set
-        {
-            propertyGrid.SelectedObject = value;
-        }
+        get => (ComPtr)propertyGrid.SelectedObject; set => propertyGrid.SelectedObject = value;
     }
 
-    public GridItem SelectedGridItem { get { return _selectedGridItem; } }
+    public GridItem SelectedGridItem => _selectedGridItem;
 }

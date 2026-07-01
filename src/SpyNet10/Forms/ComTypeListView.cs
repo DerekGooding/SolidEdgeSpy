@@ -13,19 +13,13 @@ public class ComTypeListView : ListViewEx
     public const int ConstantImageIndex = 3;
 
     public ComTypeListView()
-        : base()
-    {
-        SetupImageList();
-    }
+        : base() => SetupImageList();
 
     [Browsable(false)]
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public ComTypeInfo SelectedComTypeInfo
     {
-        get
-        {
-            return _comTypeInfo;
-        }
+        get => _comTypeInfo;
 
         set
         {
@@ -36,13 +30,13 @@ public class ComTypeListView : ListViewEx
 
     private void UpdateItems()
     {
-        List<ListViewItem> list = new List<ListViewItem>();
+        var list = new List<ListViewItem>();
 
         if (_comTypeInfo != null)
         {
-            foreach (ComFunctionInfo comFunctionInfo in _comTypeInfo.GetMethods(true))
+            foreach (var comFunctionInfo in _comTypeInfo.GetMethods(true))
             {
-                ListViewItem item = new ListViewItem(comFunctionInfo.Name);
+                var item = new ListViewItem(comFunctionInfo.Name);
                 item.SubItems.Add(comFunctionInfo.Description);
                 item.ImageIndex = MethodImageIndex;
                 item.Tag = comFunctionInfo;
@@ -55,9 +49,9 @@ public class ComTypeListView : ListViewEx
                 list.Add(item);
             }
 
-            foreach (ComPropertyInfo comPropertyInfo in _comTypeInfo.GetProperties(true))
+            foreach (var comPropertyInfo in _comTypeInfo.GetProperties(true))
             {
-                ListViewItem item = new ListViewItem(comPropertyInfo.Name);
+                var item = new ListViewItem(comPropertyInfo.Name);
                 item.SubItems.Add(comPropertyInfo.Description);
                 item.ImageIndex = PropertyImageIndex;
                 item.Tag = comPropertyInfo;
@@ -73,9 +67,9 @@ public class ComTypeListView : ListViewEx
                 list.Add(item);
             }
 
-            foreach (ComVariableInfo comVariableInfo in _comTypeInfo.Variables)
+            foreach (var comVariableInfo in _comTypeInfo.Variables)
             {
-                ListViewItem item = new ListViewItem(comVariableInfo.Name);
+                var item = new ListViewItem(comVariableInfo.Name);
                 item.SubItems.Add(comVariableInfo.Description);
                 item.ImageIndex = ConstantImageIndex;
                 item.Tag = comVariableInfo;
@@ -85,10 +79,10 @@ public class ComTypeListView : ListViewEx
 
             if (_comTypeInfo is ComCoClassInfo)
             {
-                ComCoClassInfo comCoClassInfo = (ComCoClassInfo)_comTypeInfo;
-                foreach (ComFunctionInfo comFunctionInfo in comCoClassInfo.Events)
+                var comCoClassInfo = (ComCoClassInfo)_comTypeInfo;
+                foreach (var comFunctionInfo in comCoClassInfo.Events)
                 {
-                    ListViewItem item = new ListViewItem(comFunctionInfo.Name);
+                    var item = new ListViewItem(comFunctionInfo.Name);
                     item.SubItems.Add(comFunctionInfo.Description);
                     item.ImageIndex = EventImageIndex;
                     item.Tag = comFunctionInfo;

@@ -13,7 +13,7 @@ public class TabControlEx : TabControl
 
     protected override void WndProc(ref Message m)
     {
-        bool bHandled = false;
+        var bHandled = false;
 
         if (!DesignMode)
         {
@@ -37,7 +37,6 @@ public class TabControlEx : TabControl
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool HeaderVisible
     {
-        get { return _headerVisible; }
-        set { _headerVisible = value; }
+        get => _headerVisible; set => _headerVisible = value;
     }
 }

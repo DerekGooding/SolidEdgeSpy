@@ -4,14 +4,14 @@ public static class EnumExtensions
 {
     public static bool IsSet<T>(this T value, T flags) where T : struct
     {
-        Type type = typeof(T);
+        var type = typeof(T);
 
-        // only works with enums  
+        // only works with enums
         if (!type.IsEnum) throw new ArgumentException(
             "The type parameter T must be an enum type");
 
-        // handle each underlying type  
-        Type numberType = Enum.GetUnderlyingType(type);
+        // handle each underlying type
+        var numberType = Enum.GetUnderlyingType(type);
 
         if (numberType.Equals(typeof(int)))
         {
@@ -56,12 +56,9 @@ public static class EnumExtensions
         }
     }
 
-    /// <summary>  
-    /// Helper function for handling the value types Boxes the params to  
-    /// object so that the cast can be called on them  
-    /// </summary>  
-    private static bool BoxUnbox<T>(object value, object flags, Func<T, T, bool> op)
-    {
-        return op((T)value, (T)flags);
-    }
-} 
+    /// <summary>
+    /// Helper function for handling the value types Boxes the params to
+    /// object so that the cast can be called on them
+    /// </summary>
+    private static bool BoxUnbox<T>(object value, object flags, Func<T, T, bool> op) => op((T)value, (T)flags);
+}

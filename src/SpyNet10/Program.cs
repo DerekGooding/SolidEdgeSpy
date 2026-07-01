@@ -1,9 +1,9 @@
 namespace SpyNet10;
 
-static class Program
+internal static class Program
 {
     [STAThread]
-    static int Main()
+    private static int Main()
     {
         try
         {

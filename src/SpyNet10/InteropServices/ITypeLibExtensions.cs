@@ -7,7 +7,7 @@ public static class ITypeLibExtensions
     public static Guid GetGuid(this ITypeLib typeLib)
     {
         TYPELIBATTR attr;
-        IntPtr p = IntPtr.Zero;
+        var p = IntPtr.Zero;
 
         typeLib.GetLibAttr(out p);
 
@@ -25,7 +25,7 @@ public static class ITypeLibExtensions
     public static TYPELIBATTR GetLibAttr(this ITypeLib typeLib)
     {
         TYPELIBATTR attr;
-        IntPtr p = IntPtr.Zero;
+        var p = IntPtr.Zero;
 
         typeLib.GetLibAttr(out p);
 
@@ -44,7 +44,7 @@ public static class ITypeLibExtensions
     public static Version GetVersion(this ITypeLib typeLib)
     {
         TYPELIBATTR attr;
-        IntPtr p = IntPtr.Zero;
+        var p = IntPtr.Zero;
 
         typeLib.GetLibAttr(out p);
 

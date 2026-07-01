@@ -6,50 +6,52 @@ namespace SpyNet10;
 
 public partial class AboutForm : Form
 {
-    public AboutForm()
-    {
-        InitializeComponent();
-    }
+    public AboutForm() => InitializeComponent();
 
     private void AboutForm_Load(object sender, EventArgs e)
     {
-        LinkLabel.Link link = new LinkLabel.Link();
-        link.LinkData = Resources.CodePlexUrl;
+        var link = new LinkLabel.Link
+        {
+            LinkData = Resources.CodePlexUrl
+        };
         linkCodeplex.Links.Add(link);
 
-        Assembly assembly = Assembly.GetExecutingAssembly();
-        AssemblyName assemblyName = assembly.GetName();
+        var assembly = Assembly.GetExecutingAssembly();
+        var assemblyName = assembly.GetName();
 
-        AssemblyCompanyAttribute asemblyCompanyAttribute = assembly.GetCustomAttributes(typeof(AssemblyCompanyAttribute), false).OfType<AssemblyCompanyAttribute>().FirstOrDefault();
-        AssemblyDescriptionAttribute assemblyDescriptionAttribute = assembly.GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false).OfType<AssemblyDescriptionAttribute>().FirstOrDefault();
+        var asemblyCompanyAttribute
+            = assembly.GetCustomAttributes(typeof(AssemblyCompanyAttribute), false)
+            .OfType<AssemblyCompanyAttribute>()
+            .FirstOrDefault();
+        var assemblyDescriptionAttribute
+            = assembly.GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false)
+            .OfType<AssemblyDescriptionAttribute>()
+            .FirstOrDefault();
 
-        List<ListViewItem> items = new List<ListViewItem>();
+        var items = new List<ListViewItem>();
 
         if (assemblyDescriptionAttribute != null)
         {
-            items.Add(new ListViewItem(new string[] { "Description", assemblyDescriptionAttribute.Description }));
+            items.Add(new ListViewItem(["Description", assemblyDescriptionAttribute.Description]));
         }
 
         if (asemblyCompanyAttribute != null)
         {
-            items.Add(new ListViewItem(new string[] { "Author", asemblyCompanyAttribute.Company }));
+            items.Add(new ListViewItem(["Author", asemblyCompanyAttribute.Company]));
         }
 
-        items.Add(new ListViewItem(new string[] { "Version", assemblyName.Version.ToString() }));
-        items.Add(new ListViewItem(new string[] { "Website", Resources.CodePlexUrl }));
-        items.Add(new ListViewItem(new string[] { ".NET Runtime Version", assembly.ImageRuntimeVersion }));
-        items.Add(new ListViewItem(new string[] { "Solid Edge Version", GetSolidEdgeVersion() }));
+        items.Add(new ListViewItem(["Version", assemblyName.Version.ToString()]));
+        items.Add(new ListViewItem(["Website", Resources.CodePlexUrl]));
+        items.Add(new ListViewItem([".NET Runtime Version", assembly.ImageRuntimeVersion]));
+        items.Add(new ListViewItem(["Solid Edge Version", GetSolidEdgeVersion()]));
 
-        listView.Items.AddRange(items.ToArray());
+        listView.Items.AddRange([.. items]);
         listView.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
     }
 
-    private void buttonClose_Click(object sender, EventArgs e)
-    {
-        Close();
-    }
+    private void ButtonClose_Click(object sender, EventArgs e) => Close();
 
-    private void linkCodeplex_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+    private void LinkCodeplex_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
     {
         try
         {
@@ -67,13 +69,13 @@ public partial class AboutForm : Form
 
         try
         {
-            Type type = Type.GetTypeFromProgID("SolidEdge.InstallData");
+            var type = Type.GetTypeFromProgID("SolidEdge.InstallData");
 
             if (type != null)
             {
                 installData = Activator.CreateInstance(type);
 
-                object version = installData.GetType().InvokeMember("GetVersion", BindingFlags.InvokeMethod, null, installData, null);
+                var version = installData.GetType().InvokeMember("GetVersion", BindingFlags.InvokeMethod, null, installData, null);
 
                 if (version != null)
                 {
@@ -93,6 +95,6 @@ public partial class AboutForm : Form
             }
         }
 
-        return String.Empty;
+        return string.Empty;
     }
 }

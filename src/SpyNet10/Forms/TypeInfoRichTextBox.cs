@@ -1,5 +1,4 @@
 ﻿using SpyNet10.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace SpyNet10.Forms;
 
@@ -14,7 +13,7 @@ public class TypeInfoRichTextBox : RichTextBoxEx
         AppendText("Library ");
         AppendText(comTypeLibrary.Name, ForeColor, FontStyle.Bold);
         AppendText(Environment.NewLine);
-        AppendText(String.Format("    {0}", comTypeLibrary.Filename));
+        AppendText(string.Format("    {0}", comTypeLibrary.Filename));
         AppendText(Environment.NewLine);
 
         WriteSummary(comTypeLibrary.Description);
@@ -85,15 +84,15 @@ public class TypeInfoRichTextBox : RichTextBoxEx
 
             WriteReturnParameter(comFunctionInfo.ReturnParameter);
 
-            AppendText(String.Format(" {0}", comFunctionInfo.Name), ForeColor, FontStyle.Bold);
+            AppendText(string.Format(" {0}", comFunctionInfo.Name), ForeColor, FontStyle.Bold);
 
             if (comFunctionInfo.Parameters.Length > 0)
             {
                 AppendText("(");
 
-                for (int i = 0; i < comFunctionInfo.Parameters.Length; i++)
+                for (var i = 0; i < comFunctionInfo.Parameters.Length; i++)
                 {
-                    ComParameterInfo parameter = comFunctionInfo.Parameters[i];
+                    var parameter = comFunctionInfo.Parameters[i];
 
                     WriteParameter(parameter);
 
@@ -131,19 +130,19 @@ public class TypeInfoRichTextBox : RichTextBoxEx
 
             if (comPropertyInfo == null) return;
 
-            ComFunctionInfo comFunctionInfo = comPropertyInfo.GetFunction;
+            var comFunctionInfo = comPropertyInfo.GetFunction;
 
             WriteReturnParameter(comFunctionInfo.ReturnParameter);
 
-            AppendText(String.Format(" {0}", comFunctionInfo.Name), ForeColor, FontStyle.Bold);
+            AppendText(string.Format(" {0}", comFunctionInfo.Name), ForeColor, FontStyle.Bold);
 
             if (comFunctionInfo.Parameters.Length > 0)
             {
                 AppendText("(");
 
-                for (int i = 0; i < comFunctionInfo.Parameters.Length; i++)
+                for (var i = 0; i < comFunctionInfo.Parameters.Length; i++)
                 {
-                    ComParameterInfo parameter = comFunctionInfo.Parameters[i];
+                    var parameter = comFunctionInfo.Parameters[i];
 
                     WriteParameter(parameter);
 
@@ -158,7 +157,7 @@ public class TypeInfoRichTextBox : RichTextBoxEx
 
             //string Caption { set; get; }
             AppendText(" { ");
-            
+
             if (comPropertyInfo.GetFunction != null)
             {
                 AppendText("get; ");
@@ -194,7 +193,7 @@ public class TypeInfoRichTextBox : RichTextBoxEx
 
             AppendText("Constant ");
             AppendText(comVariableInfo.Name, ForeColor, FontStyle.Bold);
-            AppendText(String.Format(" = {0}", comVariableInfo.ConstantValue));
+            AppendText(string.Format(" = {0}", comVariableInfo.ConstantValue));
             AppendText(Environment.NewLine);
             AppendText("   Member of ");
             InsertLink(comVariableInfo.ComTypeInfo.FullName);
@@ -252,10 +251,10 @@ public class TypeInfoRichTextBox : RichTextBoxEx
             AppendText("ref ");
         }
 
-        char[] tokens = { '[', ']' };
-        ITypeInfo typeInfo = parameter.ComFunctionInfo.ComTypeInfo.GetITypeInfo();
-        string parameterTypeName = ComHelper.TypeDescToString(parameter.ELEMDESC.tdesc, typeInfo);
-        string parameterTypeNameLink = parameterTypeName.Trim(tokens);
+        char[] tokens = ['[', ']'];
+        var typeInfo = parameter.ComFunctionInfo.ComTypeInfo.GetITypeInfo();
+        var parameterTypeName = ComHelper.TypeDescToString(parameter.ELEMDESC.tdesc, typeInfo);
+        var parameterTypeNameLink = parameterTypeName.Trim(tokens);
 
         if (ComTypeManager.Instance.HasComType(parameterTypeNameLink))
         {
@@ -277,16 +276,17 @@ public class TypeInfoRichTextBox : RichTextBoxEx
 
     private void WriteReturnParameter(ComParameterInfo parameter)
     {
-        char[] tokens = { '[', ']' };
-        ITypeInfo typeInfo = parameter.ComFunctionInfo.ComTypeInfo.GetITypeInfo();
-        string returnParameter = ComHelper.TypeDescToString(parameter.ELEMDESC.tdesc, typeInfo);
-        string returnParameterLink = returnParameter.Trim(tokens);
+        char[] tokens = ['[', ']'];
+        var typeInfo = parameter.ComFunctionInfo.ComTypeInfo.GetITypeInfo();
+        var returnParameter = ComHelper.TypeDescToString(parameter.ELEMDESC.tdesc, typeInfo);
+        var returnParameterLink = returnParameter.Trim(tokens);
 
         switch (parameter.VariantType)
         {
             case System.Runtime.InteropServices.VarEnum.VT_VOID:
                 AppendText(returnParameter, ForeColor, FontStyle.Bold);
                 break;
+
             default:
                 if (ComTypeManager.Instance.HasComType(returnParameterLink))
                 {
@@ -302,12 +302,12 @@ public class TypeInfoRichTextBox : RichTextBoxEx
 
     private void WriteSummary(string summary)
     {
-        if (String.IsNullOrWhiteSpace(summary) == false)
+        if (string.IsNullOrWhiteSpace(summary) == false)
         {
             AppendText(Environment.NewLine);
             AppendText("Summary:", ForeColor, FontStyle.Bold);
             AppendText(Environment.NewLine);
-            AppendText(String.Format("    {0}", summary));
+            AppendText(string.Format("    {0}", summary));
             AppendText(Environment.NewLine);
         }
     }
@@ -319,7 +319,7 @@ public class TypeInfoRichTextBox : RichTextBoxEx
             AppendText(Environment.NewLine);
             AppendText("GUID:", ForeColor, FontStyle.Bold);
             AppendText(Environment.NewLine);
-            AppendText(String.Format("    {0}", guid.ToString("B").ToUpper()));
+            AppendText(string.Format("    {0}", guid.ToString("B").ToUpper()));
             AppendText(Environment.NewLine);
         }
     }
@@ -329,7 +329,7 @@ public class TypeInfoRichTextBox : RichTextBoxEx
         AppendText(Environment.NewLine);
         AppendText("ID:", ForeColor, FontStyle.Bold);
         AppendText(Environment.NewLine);
-        AppendText(String.Format("    {0} (0x{1})", id, id.ToString("X8")));
+        AppendText(string.Format("    {0} (0x{1})", id, id.ToString("X8")));
         AppendText(Environment.NewLine);
     }
 }

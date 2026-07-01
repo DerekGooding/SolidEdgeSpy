@@ -1,6 +1,6 @@
+using SpyNet10.Extensions;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
-using SpyNet10.Extensions;
 
 namespace SpyNet10.InteropServices;
 
@@ -10,10 +10,10 @@ public class ComTypeInfo
     protected ITypeInfo _typeInfo;
     protected IntPtr _pTypeAttr;
     protected TYPEATTR _typeAttr;
-    protected string _name = String.Empty;
-    protected string _description = String.Empty;
+    protected string _name = string.Empty;
+    protected string _description = string.Empty;
     protected int _helpContext = 0;
-    protected string _helpFile = String.Empty;
+    protected string _helpFile = string.Empty;
     protected List<ComMemberInfo> _members = null;
     protected List<ComImplementedTypeInfo> _implementedTypes = null;
 
@@ -34,17 +34,17 @@ public class ComTypeInfo
             {
                 _implementedTypes = new List<ComImplementedTypeInfo>();
 
-                for (int i = 0; i< _typeAttr.cImplTypes; i++)
+                for (var i = 0; i < _typeAttr.cImplTypes; i++)
                 {
-                    IMPLTYPEFLAGS flags = default(IMPLTYPEFLAGS);
+                    var flags = default(IMPLTYPEFLAGS);
                     _typeInfo.GetImplTypeFlags(i, out flags);
 
                     ITypeInfo refTypeInfo = null;
-                    int href = 0;
+                    var href = 0;
                     _typeInfo.GetRefTypeOfImplType(i, out href);
                     _typeInfo.GetRefTypeInfo(href, out refTypeInfo);
-                    
-                    ComTypeInfo comTypeInfo = ComTypeManager.Instance.FromITypeInfo(refTypeInfo);
+
+                    var comTypeInfo = ComTypeManager.Instance.FromITypeInfo(refTypeInfo);
 
                     _implementedTypes.Add(new ComImplementedTypeInfo(comTypeInfo, flags));
                 }
@@ -64,26 +64,19 @@ public class ComTypeInfo
         }
     }
 
-    public ComFunctionInfo[] Methods
-    {
-        get
-        {
-            return Members.OfType<ComFunctionInfo>().Where(function => function.InvokeKind == System.Runtime.InteropServices.ComTypes.INVOKEKIND.INVOKE_FUNC).ToArray();
-        }
-    }
+    public ComFunctionInfo[] Methods => Members.OfType<ComFunctionInfo>().Where(function => function.InvokeKind == System.Runtime.InteropServices.ComTypes.INVOKEKIND.INVOKE_FUNC).ToArray();
 
     public ComPropertyInfo[] Properties
     {
         get
         {
+            var list = new List<ComPropertyInfo>();
+            var dictionary = new Dictionary<string, List<ComFunctionInfo>>();
 
-            List<ComPropertyInfo> list = new List<ComPropertyInfo>();
-            Dictionary<string, List<ComFunctionInfo>> dictionary = new Dictionary<string, List<ComFunctionInfo>>();
-
-            ComFunctionInfo[] functions = Members.OfType<ComFunctionInfo>().Where(
+            var functions = Members.OfType<ComFunctionInfo>().Where(
                 x => x.InvokeKind != System.Runtime.InteropServices.ComTypes.INVOKEKIND.INVOKE_FUNC).ToArray();
 
-            foreach (ComFunctionInfo function in functions)
+            foreach (var function in functions)
             {
                 if (!dictionary.ContainsKey(function.Name))
                 {
@@ -104,17 +97,11 @@ public class ComTypeInfo
         }
     }
 
-    public ComVariableInfo[] Variables
-    {
-        get
-        {
-            return Members.OfType<ComVariableInfo>().ToArray();
-        }
-    }
+    public ComVariableInfo[] Variables => Members.OfType<ComVariableInfo>().ToArray();
 
     public ComFunctionInfo[] GetMethods(bool includeInherited)
     {
-        List<ComFunctionInfo> list = new List<ComFunctionInfo>();
+        var list = new List<ComFunctionInfo>();
 
         list.AddRange(Methods);
 
@@ -123,7 +110,7 @@ public class ComTypeInfo
             list.AddRange(GetInheritedMethods(this));
         }
 
-        list.Sort(delegate(ComFunctionInfo a, ComFunctionInfo b)
+        list.Sort(delegate (ComFunctionInfo a, ComFunctionInfo b)
         {
             return a.Name.CompareTo(b.Name);
         });
@@ -133,7 +120,7 @@ public class ComTypeInfo
 
     public ComPropertyInfo[] GetProperties(bool includeInherited)
     {
-        List<ComPropertyInfo> list = new List<ComPropertyInfo>();
+        var list = new List<ComPropertyInfo>();
 
         list.AddRange(Properties);
 
@@ -142,7 +129,7 @@ public class ComTypeInfo
             list.AddRange(GetInheriteProperties(this));
         }
 
-        list.Sort(delegate(ComPropertyInfo a, ComPropertyInfo b)
+        list.Sort(delegate (ComPropertyInfo a, ComPropertyInfo b)
         {
             return a.Name.CompareTo(b.Name);
         });
@@ -152,15 +139,15 @@ public class ComTypeInfo
 
     private ComFunctionInfo[] GetInheritedMethods(ComTypeInfo comTypeInfo)
     {
-        List<ComFunctionInfo> list = new List<ComFunctionInfo>();
+        var list = new List<ComFunctionInfo>();
 
-        for (int i = 0; i < comTypeInfo.ImplementedTypes.Length; i++)
+        for (var i = 0; i < comTypeInfo.ImplementedTypes.Length; i++)
         {
-            ComImplementedTypeInfo comImplementedTypeInfo = comTypeInfo.ImplementedTypes[i];
+            var comImplementedTypeInfo = comTypeInfo.ImplementedTypes[i];
 
             if (comImplementedTypeInfo.IsSource == false)
             {
-                foreach (ComFunctionInfo comFunctionInfo in comImplementedTypeInfo.ComTypeInfo.Methods)
+                foreach (var comFunctionInfo in comImplementedTypeInfo.ComTypeInfo.Methods)
                 {
                     if (list.FirstOrDefault(x => x.Name.Equals(comFunctionInfo.Name)) == null)
                     {
@@ -172,7 +159,7 @@ public class ComTypeInfo
             }
         }
 
-        list.Sort(delegate(ComFunctionInfo a, ComFunctionInfo b)
+        list.Sort(delegate (ComFunctionInfo a, ComFunctionInfo b)
         {
             return a.Name.CompareTo(b.Name);
         });
@@ -182,15 +169,15 @@ public class ComTypeInfo
 
     private ComPropertyInfo[] GetInheriteProperties(ComTypeInfo comTypeInfo)
     {
-        List<ComPropertyInfo> list = new List<ComPropertyInfo>();
+        var list = new List<ComPropertyInfo>();
 
-        for (int i = 0; i < comTypeInfo.ImplementedTypes.Length; i++)
+        for (var i = 0; i < comTypeInfo.ImplementedTypes.Length; i++)
         {
-            ComImplementedTypeInfo comImplementedTypeInfo = comTypeInfo.ImplementedTypes[i];
+            var comImplementedTypeInfo = comTypeInfo.ImplementedTypes[i];
 
             if (comImplementedTypeInfo.IsSource == false)
             {
-                foreach (ComPropertyInfo comPropertyInfo in comImplementedTypeInfo.ComTypeInfo.Properties)
+                foreach (var comPropertyInfo in comImplementedTypeInfo.ComTypeInfo.Properties)
                 {
                     if (list.FirstOrDefault(x => x.Name.Equals(comPropertyInfo.Name)) == null)
                     {
@@ -202,7 +189,7 @@ public class ComTypeInfo
             }
         }
 
-        list.Sort(delegate(ComPropertyInfo a, ComPropertyInfo b)
+        list.Sort(delegate (ComPropertyInfo a, ComPropertyInfo b)
         {
             return a.Name.CompareTo(b.Name);
         });
@@ -210,30 +197,30 @@ public class ComTypeInfo
         return list.ToArray();
     }
 
-    public bool IsAlias { get { return _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_ALIAS; } }
-    public bool IsCoClass { get { return _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_COCLASS; } }
-    public bool IsDispatch { get { return _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_DISPATCH; } }
-    public bool IsEnum { get { return _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_ENUM; } }
-    public bool IsInterface { get { return _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_INTERFACE; } }
-    public bool IsMax { get { return _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_MAX; } }
-    public bool IsModule { get { return _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_MODULE; } }
-    public bool IsRecord { get { return _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_RECORD; } }
-    public bool IsUnion { get { return _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_UNION; } }
-    public bool IsAppObject { get { return _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FAPPOBJECT); } }
-    public bool IsCanCreate { get { return _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FCANCREATE); } }
-    public bool IsLicensed { get { return _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FLICENSED); } }
-    public bool IsPredeclid { get { return _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FPREDECLID); } }
-    public bool IsHidden { get { return _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FHIDDEN); } }
-    public bool IsControl { get { return _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FCONTROL); } }
-    public bool IsDual { get { return _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FDUAL); } }
-    public bool IsNonExtensible { get { return _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FNONEXTENSIBLE); } }
-    public bool IsOleAutomation { get { return _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FOLEAUTOMATION); } }
-    public bool IsRestricted { get { return _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FRESTRICTED); } }
-    public bool IsAggregatable { get { return _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FAGGREGATABLE); } }
-    public bool IsReplaceable { get { return _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FREPLACEABLE); } }
-    public bool IsDispatchable { get { return _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FDISPATCHABLE); } }
-    public bool IsReverseBind { get { return _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FREVERSEBIND); } }
-    public bool IsProxy { get { return _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FPROXY); } }
+    public bool IsAlias => _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_ALIAS;
+    public bool IsCoClass => _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_COCLASS;
+    public bool IsDispatch => _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_DISPATCH;
+    public bool IsEnum => _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_ENUM;
+    public bool IsInterface => _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_INTERFACE;
+    public bool IsMax => _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_MAX;
+    public bool IsModule => _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_MODULE;
+    public bool IsRecord => _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_RECORD;
+    public bool IsUnion => _typeAttr.typekind == System.Runtime.InteropServices.ComTypes.TYPEKIND.TKIND_UNION;
+    public bool IsAppObject => _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FAPPOBJECT);
+    public bool IsCanCreate => _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FCANCREATE);
+    public bool IsLicensed => _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FLICENSED);
+    public bool IsPredeclid => _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FPREDECLID);
+    public bool IsHidden => _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FHIDDEN);
+    public bool IsControl => _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FCONTROL);
+    public bool IsDual => _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FDUAL);
+    public bool IsNonExtensible => _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FNONEXTENSIBLE);
+    public bool IsOleAutomation => _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FOLEAUTOMATION);
+    public bool IsRestricted => _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FRESTRICTED);
+    public bool IsAggregatable => _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FAGGREGATABLE);
+    public bool IsReplaceable => _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FREPLACEABLE);
+    public bool IsDispatchable => _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FDISPATCHABLE);
+    public bool IsReverseBind => _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FREVERSEBIND);
+    public bool IsProxy => _typeAttr.wTypeFlags.IsSet(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FPROXY);
 
     private void LoadMembers()
     {
@@ -241,10 +228,10 @@ public class ComTypeInfo
 
         for (short i = 0; i < _typeAttr.cFuncs; i++)
         {
-            IntPtr pFuncDesc = IntPtr.Zero;
+            var pFuncDesc = IntPtr.Zero;
 
             _typeInfo.GetFuncDesc(i, out pFuncDesc);
-            ComFunctionInfo comFunctionInfo = new ComFunctionInfo(this, pFuncDesc);
+            var comFunctionInfo = new ComFunctionInfo(this, pFuncDesc);
 
             _members.Add(comFunctionInfo);
         }
@@ -253,7 +240,7 @@ public class ComTypeInfo
         for (short i = 0; i < _typeAttr.cVars; i++)
         {
             VARDESC varDesc;
-            IntPtr p = IntPtr.Zero;
+            var p = IntPtr.Zero;
 
             _typeInfo.GetVarDesc(i, out p);
             object constantValue = null;
@@ -272,11 +259,11 @@ public class ComTypeInfo
                 _typeInfo.ReleaseVarDesc(p);
             }
 
-            ComVariableInfo comVariableInfo = new ComVariableInfo(this, varDesc, constantValue);
+            var comVariableInfo = new ComVariableInfo(this, varDesc, constantValue);
             _members.Add(comVariableInfo);
         }
 
-        _members.Sort(delegate(ComMemberInfo a, ComMemberInfo b)
+        _members.Sort(delegate (ComMemberInfo a, ComMemberInfo b)
         {
             return a.Name.CompareTo(b.Name);
         });
@@ -337,13 +324,15 @@ public class ComTypeInfo
     //    });
     //}
 
-    public ComTypeLibrary ComTypeLibrary { get { return _comTypeLibrary; } }
-    public string Name { get { return _name; } }
-    public string FullName { get { return String.Format("{0}.{1}", _comTypeLibrary.Name, _name); } }
-    public string Description { get { return _description; } }
-    public ITypeInfo GetITypeInfo() { return _typeInfo; }
-    public Guid Guid { get { return _typeAttr.guid; } }
-    public Version Version { get { return new Version(_typeAttr.wMajorVerNum, _typeAttr.wMinorVerNum); } }
+    public ComTypeLibrary ComTypeLibrary => _comTypeLibrary;
+    public string Name => _name;
+    public string FullName => string.Format("{0}.{1}", _comTypeLibrary.Name, _name);
+    public string Description => _description;
+
+    public ITypeInfo GetITypeInfo() => _typeInfo;
+
+    public Guid Guid => _typeAttr.guid;
+    public Version Version => new(_typeAttr.wMajorVerNum, _typeAttr.wMinorVerNum);
 
     public bool IsCollection
     {
@@ -354,10 +343,7 @@ public class ComTypeInfo
         }
     }
 
-    public override string ToString()
-    {
-        return FullName;
-    }
+    public override string ToString() => FullName;
 }
 
 public class ComAliasInfo : ComTypeInfo
@@ -370,7 +356,7 @@ public class ComAliasInfo : ComTypeInfo
 
 public class ComCoClassInfo : ComTypeInfo
 {
-    List<ComFunctionInfo> _events = null;
+    private List<ComFunctionInfo> _events = null;
 
     public ComCoClassInfo(ComTypeLibrary parent, ITypeInfo typeInfo, IntPtr pTypeAttr)
         : base(parent, typeInfo, pTypeAttr)
@@ -385,13 +371,13 @@ public class ComCoClassInfo : ComTypeInfo
             {
                 _events = new List<ComFunctionInfo>();
 
-                for (int i = 0; i < ImplementedTypes.Length; i++)
+                for (var i = 0; i < ImplementedTypes.Length; i++)
                 {
-                    ComImplementedTypeInfo comImplementedTypeInfo = ImplementedTypes[i];
+                    var comImplementedTypeInfo = ImplementedTypes[i];
 
                     if (comImplementedTypeInfo.IsSource)
                     {
-                        foreach (ComFunctionInfo comFunctionInfo in comImplementedTypeInfo.ComTypeInfo.Methods)
+                        foreach (var comFunctionInfo in comImplementedTypeInfo.ComTypeInfo.Methods)
                         {
                             if (comFunctionInfo.IsRestricted == false)
                             {
@@ -404,7 +390,7 @@ public class ComCoClassInfo : ComTypeInfo
                     }
                 }
 
-                _events.Sort(delegate(ComFunctionInfo a, ComFunctionInfo b)
+                _events.Sort(delegate (ComFunctionInfo a, ComFunctionInfo b)
                 {
                     return a.Name.CompareTo(b.Name);
                 });

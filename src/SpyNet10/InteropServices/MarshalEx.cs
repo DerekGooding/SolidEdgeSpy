@@ -7,13 +7,13 @@ public static class MarshalEx
 {
     public static int CreateInstance(string progID, out IntPtr p)
     {
-        int hr = 0;
-        Guid clsid = Guid.Empty;
+        var hr = 0;
+        var clsid = Guid.Empty;
         p = IntPtr.Zero;
 
         if (Succeeded(hr = NativeMethods.CLSIDFromString(progID, out clsid)))
         {
-            Guid iid = new Guid(NativeMethods.IID_IUnknown);
+            var iid = new Guid(NativeMethods.IID_IUnknown);
 
             if (Succeeded(hr = NativeMethods.CoCreateInstance(clsid, IntPtr.Zero, 23, iid, out p)))
             {
@@ -26,9 +26,9 @@ public static class MarshalEx
 
     public static int CreateInstance(string progID, out ComPtr p)
     {
-        int hr = 0;
-        Guid clsid = Guid.Empty;
-        IntPtr pUnk = IntPtr.Zero;
+        var hr = 0;
+        var clsid = Guid.Empty;
+        var pUnk = IntPtr.Zero;
         p = IntPtr.Zero;
 
         if (Succeeded(hr = CreateInstance(progID, out pUnk)))
@@ -58,8 +58,8 @@ public static class MarshalEx
 
     public static int GetActiveObject(string progID, out IntPtr p)
     {
-        int hr = 0;
-        Guid clsid = Guid.Empty;
+        var hr = 0;
+        var clsid = Guid.Empty;
         p = IntPtr.Zero;
 
         if (Succeeded(hr = NativeMethods.CLSIDFromString(progID, out clsid)))
@@ -72,9 +72,9 @@ public static class MarshalEx
 
     public static int GetActiveObject(string progID, out ComPtr p)
     {
-        int hr = 0;
-        Guid clsid = Guid.Empty;
-        IntPtr pUnk = IntPtr.Zero;
+        var hr = 0;
+        var clsid = Guid.Empty;
+        var pUnk = IntPtr.Zero;
         p = IntPtr.Zero;
 
         if (Succeeded(hr = GetActiveObject(progID, out pUnk)))
@@ -107,30 +107,30 @@ public static class MarshalEx
     /// </summary>
     public static Dictionary<Guid, string> QueryInterfaces(IntPtr pUnk)
     {
-        Dictionary<Guid, string> list = new Dictionary<Guid, string>();
+        var list = new Dictionary<Guid, string>();
 
         try
         {
-            using (RegistryKey baseKey = RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Default))
+            using (var baseKey = RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Default))
             {
-                using (RegistryKey interfaceKey = baseKey.OpenSubKey("Interface"))
+                using (var interfaceKey = baseKey.OpenSubKey("Interface"))
                 {
-                    foreach (string iid in interfaceKey.GetSubKeyNames())
+                    foreach (var iid in interfaceKey.GetSubKeyNames())
                     {
                         try
                         {
-                            Guid guid = Guid.Empty;
+                            var guid = Guid.Empty;
 
                             if (Guid.TryParse(iid, out guid))
                             {
-                                IntPtr ppv = IntPtr.Zero;
+                                var ppv = IntPtr.Zero;
 
                                 if (Marshal.QueryInterface(pUnk, ref guid, out ppv) == 0)
                                 {
-                                    using (RegistryKey iidKey = interfaceKey.OpenSubKey(iid))
+                                    using (var iidKey = interfaceKey.OpenSubKey(iid))
                                     {
-                                        object defaultValue = iidKey.GetValue(null);
-                                        list.Add(guid, String.Format("{0}", defaultValue));
+                                        var defaultValue = iidKey.GetValue(null);
+                                        list.Add(guid, string.Format("{0}", defaultValue));
                                         Marshal.Release(ppv);
                                     }
                                 }
@@ -152,33 +152,34 @@ public static class MarshalEx
 
         return list;
     }
+
     /// <summary>
     /// Returns an array of Guids by QueryInterface()'ing all IIDs known to this system.
     /// </summary>
     public static Guid[] QueryInterfaces(object o)
     {
-        List<Guid> list = new List<Guid>();
+        var list = new List<Guid>();
 
         if (Marshal.IsComObject(o))
         {
-            IntPtr pUnk = IntPtr.Zero;
+            var pUnk = IntPtr.Zero;
             try
             {
                 pUnk = Marshal.GetIUnknownForObject(o);
 
-                using (RegistryKey baseKey = RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Default))
+                using (var baseKey = RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Default))
                 {
-                    using (RegistryKey interfaceKey = baseKey.OpenSubKey("Interface"))
+                    using (var interfaceKey = baseKey.OpenSubKey("Interface"))
                     {
-                        foreach (string iid in interfaceKey.GetSubKeyNames())
+                        foreach (var iid in interfaceKey.GetSubKeyNames())
                         {
                             try
                             {
-                                Guid guid = Guid.Empty;
+                                var guid = Guid.Empty;
 
                                 if (Guid.TryParse(iid, out guid))
                                 {
-                                    IntPtr ppv = IntPtr.Zero;
+                                    var ppv = IntPtr.Zero;
 
                                     if (Marshal.QueryInterface(pUnk, ref guid, out ppv) == 0)
                                     {
@@ -209,13 +210,7 @@ public static class MarshalEx
         return list.ToArray();
     }
 
-    public static bool Succeeded(int hr)
-    {
-        return NativeMethods.Succeeded(hr);
-    }
+    public static bool Succeeded(int hr) => NativeMethods.Succeeded(hr);
 
-    public static bool Failed(int hr)
-    {
-        return NativeMethods.Failed(hr);
-    }
+    public static bool Failed(int hr) => NativeMethods.Failed(hr);
 }

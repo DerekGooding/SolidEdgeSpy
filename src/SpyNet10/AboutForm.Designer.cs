@@ -49,7 +49,7 @@ namespace SpyNet10
             this.buttonClose.TabIndex = 0;
             this.buttonClose.Text = "&Close";
             this.buttonClose.UseVisualStyleBackColor = true;
-            this.buttonClose.Click += new System.EventHandler(this.buttonClose_Click);
+            this.buttonClose.Click += new System.EventHandler(this.ButtonClose_Click);
             // 
             // listView
             // 
@@ -89,7 +89,7 @@ namespace SpyNet10
             this.linkCodeplex.TabStop = true;
             this.linkCodeplex.Text = "Spy for Solid Edge";
             this.linkCodeplex.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.linkCodeplex.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkCodeplex_LinkClicked);
+            this.linkCodeplex.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkCodeplex_LinkClicked);
             // 
             // pictureBox
             // 
